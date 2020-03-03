@@ -1,5 +1,6 @@
 import 'package:bloc/bloc.dart';
 import 'package:bookcatalog/book/book.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:meta/meta.dart';
 
@@ -13,8 +14,18 @@ class Loading implements BookState {}
 
 class Error implements BookState {}
 
+class NoUpdates implements BookState {}
+
 class Loaded implements BookState {
   final Book book;
+
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      other is Loaded && runtimeType == other.runtimeType && book == other.book;
+
+  @override
+  int get hashCode => book.hashCode;
 
   const Loaded({
     @required this.book,
@@ -42,8 +53,8 @@ class BookBloc extends Bloc<BookEvent, BookState> {
     if (event is Refresh && s is Loaded) {
       yield Loading();
       try {
-        final books = await booksApi.getBooksById([book.id].toSet());
-        s.copyWith(book: books.first);
+        final fetchedBook = await booksApi.getBookById(book.id);
+        yield fetchedBook != book ? s.copyWith(book: fetchedBook) : NoUpdates();
       } catch (e) {
         yield Error();
       }

@@ -38,8 +38,8 @@ class BooksApi {
         ),
       );
 
-  Future<Iterable<Book>> getBooksById(Set<int> ids) => Future.delayed(
+  Future<Book> getBookById(int id) => Future.delayed(
         Duration(milliseconds: 800),
-        () => _mock.where((it) => ids.contains(it.id)),
+        () => _mock.firstWhere((it) => it.id == id),
       );
 }

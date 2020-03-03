@@ -12,10 +12,19 @@ class Book {
       identical(this, other) ||
       other is Book &&
           runtimeType == other.runtimeType &&
-          shortDescription == other.shortDescription;
+          id == other.id &&
+          title == other.title &&
+          shortDescription == other.shortDescription &&
+          price == other.price &&
+          imageUrl == other.imageUrl;
 
   @override
-  int get hashCode => shortDescription.hashCode;
+  int get hashCode =>
+      id.hashCode ^
+      title.hashCode ^
+      shortDescription.hashCode ^
+      price.hashCode ^
+      imageUrl.hashCode;
 
   const Book({
     @required this.id,
