@@ -5,5 +5,6 @@ class S {
   static const booksCatalog = 'Каталог книг';
   static const enterPin = 'Введите пин';
   static const repeatPin = 'Повторите пин';
+  static const networkError = 'Сетевая ошибка';
   static const l = '';
 }
