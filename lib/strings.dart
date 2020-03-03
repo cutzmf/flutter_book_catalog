@@ -6,5 +6,6 @@ class S {
   static const enterPin = 'Введите пин';
   static const repeatPin = 'Повторите пин';
   static const networkError = 'Сетевая ошибка';
-  static const l = '';
+  static const buy = 'Купить';
+  static const details = 'Подробнее';
 }

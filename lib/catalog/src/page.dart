@@ -88,7 +88,8 @@ class BookListItem extends StatelessWidget {
                       shape: StadiumBorder(
                         side: BorderSide(),
                       ),
-                      onPressed: () {},
+                      onPressed: () =>
+                          Navigator.push(context, detailsRoute(book, context)),
                     ),
                   ),
                 ],
