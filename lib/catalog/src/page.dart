@@ -66,26 +66,37 @@ class BookListItem extends StatelessWidget {
   Widget build(BuildContext context) {
     return Card(
       child: IntrinsicHeight(
-          child: Row(
-        children: <Widget>[
-          SizedBox(
-            height: 100,
-            width: 100,
-            child: CachedNetworkImage(
-              imageUrl: book.imageUrl,
+        child: Row(
+          children: <Widget>[
+            SizedBox(
+              height: 100,
+              width: 100,
+              child: CachedNetworkImage(
+                imageUrl: book.imageUrl,
+              ),
             ),
-          ),
-          Expanded(
-            child: Column(
-              children: <Widget>[
-                Text(book.title),
-                Text(book.price.toString()),
-                Text(book.shortDescription),
-              ],
+            Expanded(
+              child: Column(
+                children: <Widget>[
+                  Text(book.title),
+                  Text(book.price.toString()),
+                  Text(book.shortDescription),
+                  Align(
+                    alignment: Alignment.centerRight,
+                    child: FlatButton(
+                      child: Text(S.details),
+                      shape: StadiumBorder(
+                        side: BorderSide(),
+                      ),
+                      onPressed: () {},
+                    ),
+                  ),
+                ],
+              ),
             ),
-          ),
-        ],
-      )),
+          ],
+        ),
+      ),
     );
   }
 
