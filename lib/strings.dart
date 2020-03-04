@@ -9,6 +9,8 @@ class S {
   static const networkError =
       'Проверьте соединение с интернетом и попробуйте еще раз';
   static const buy = 'Купить';
+  static const succeedBuy = 'Вы успешно приобрели книгу';
+  static const thanks = 'Спасибо!';
   static const details = 'Подробнее';
   static const shortDescription = 'Краткое описание';
 }

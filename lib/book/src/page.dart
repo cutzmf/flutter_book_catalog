@@ -1,6 +1,7 @@
 import 'dart:ui';
 
 import 'package:bookcatalog/book/src/bloc.dart';
+import 'package:bookcatalog/book/src/thanks.dart';
 import 'package:bookcatalog/bookify_icons_icons.dart';
 import 'package:bookcatalog/catalog/src/page.dart';
 import 'package:bookcatalog/strings.dart';
@@ -138,7 +139,11 @@ class _BuyButton extends StatelessWidget {
           child: Material(
             color: Colors.black,
             child: InkWell(
-              onTap: () {},
+              onTap: () => showDialog(
+                context: context,
+                barrierDismissible: false,
+                builder: (_) => ThanksDialog(),
+              ),
               splashColor: Colors.grey,
               child: Row(
                 crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -146,7 +151,7 @@ class _BuyButton extends StatelessWidget {
                 children: <Widget>[
                   Center(
                     child: Text(
-                      S.buy.toUpperCase() ,
+                      S.buy.toUpperCase(),
                       style: TextStyle(
                         fontSize: 12,
                         color: Colors.white,
