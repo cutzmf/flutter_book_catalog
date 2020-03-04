@@ -23,6 +23,7 @@ class BooksApi {
       return Book(
         id: index,
         title: Cutesum.loremCutesum(words: 3),
+        author: Cutesum.loremCutesum(words: 2).replaceAllMapped('.', (_)=>''),
         shortDescription: Cutesum.loremCutesum(),
         price: _random.nextInt(3) * 1000 +
             _random.nextInt(10) * 100 +

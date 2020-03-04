@@ -3,6 +3,7 @@ import 'package:meta/meta.dart';
 class Book {
   final int id;
   final String title;
+  final String author;
   final String shortDescription;
   final int price;
   final String imageUrl;
@@ -14,6 +15,7 @@ class Book {
           runtimeType == other.runtimeType &&
           id == other.id &&
           title == other.title &&
+          author == other.author &&
           shortDescription == other.shortDescription &&
           price == other.price &&
           imageUrl == other.imageUrl;
@@ -22,6 +24,7 @@ class Book {
   int get hashCode =>
       id.hashCode ^
       title.hashCode ^
+      author.hashCode ^
       shortDescription.hashCode ^
       price.hashCode ^
       imageUrl.hashCode;
@@ -29,6 +32,7 @@ class Book {
   const Book({
     @required this.id,
     @required this.title,
+    @required this.author,
     @required this.shortDescription,
     @required this.price,
     @required this.imageUrl,

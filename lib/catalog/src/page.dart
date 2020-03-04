@@ -139,6 +139,7 @@ class BookListItem extends StatelessWidget {
               child: Column(
                 children: <Widget>[
                   Text(book.title),
+                  Text(book.author),
                   Text(book.price.toString()),
                   Text(book.shortDescription),
                   Align(

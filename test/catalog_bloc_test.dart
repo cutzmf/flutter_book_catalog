@@ -10,6 +10,7 @@ void main() {
   final book1 = Book(
     id: 31337,
     title: 'title1',
+    author: 'a1',
     shortDescription: 'desc',
     price: 42,
     imageUrl: 'url',
@@ -18,6 +19,7 @@ void main() {
   final book2 = Book(
     id: 31338,
     title: 'title2',
+    author: 'a2',
     shortDescription: 'desc2',
     price: 142,
     imageUrl: 'url2',

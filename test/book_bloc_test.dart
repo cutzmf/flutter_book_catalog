@@ -10,6 +10,7 @@ void main() {
   final book = Book(
     id: 31337,
     title: 'title',
+    author: 'a1',
     shortDescription: 'desc',
     price: 42,
     imageUrl: 'url',
