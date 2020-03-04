@@ -27,15 +27,9 @@ class BooksApi {
 
   static const pageSize = 20;
 
-  /// page starts with 0
-  Future<BooksPage> getBooksPage(int page) => Future.delayed(
+  Future<List<Book>> getBooks() => Future.delayed(
         Duration(milliseconds: 2800),
-        () => BooksPage(
-          hasNext: page * pageSize < _mock.length,
-          books: _mock
-              .getRange(page * pageSize, page * pageSize + pageSize)
-              .toList(),
-        ),
+        () => _mock,
       );
 
   Future<Book> getBookById(int id) => Future.delayed(

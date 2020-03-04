@@ -1,5 +1,6 @@
 import 'package:bloc/bloc.dart';
 import 'package:bookcatalog/book/book.dart';
+import 'package:collection/collection.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:meta/meta.dart';
 
@@ -9,35 +10,51 @@ class Refresh implements CatalogEvent {}
 
 class LoadMore implements CatalogEvent {}
 
+class Search implements CatalogEvent {
+  final String value;
+
+  Search(this.value);
+}
+
+class ClearSearch implements CatalogEvent {}
+
 abstract class CatalogState {}
 
 class Loading implements CatalogState {}
 
+class Refreshing extends Loading {}
+
 class Error implements CatalogState {}
 
 class Loaded implements CatalogState {
-  final int _pageNumber;
-  final List<Book> _cache;
   final List<Book> books;
-
-  Loaded copyWith({
-    int pageNumber,
-    List<Book> cache,
-    Iterable<Book> books,
-  }) {
-    return new Loaded(
-      pageNumber: pageNumber ?? this._pageNumber,
-      cache: cache ?? this._cache,
-      books: books ?? this.books,
-    );
-  }
+  final String search;
 
   const Loaded({
     @required this.books,
-    @required int pageNumber,
-    @required List<Book> cache,
-  })  : _pageNumber = pageNumber,
-        _cache = cache;
+    @required this.search,
+  });
+
+  Loaded copyWith({
+    List<Book> books,
+    String search,
+  }) {
+    return new Loaded(
+      books: books ?? this.books,
+      search: search ?? this.search,
+    );
+  }
+
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      other is Loaded &&
+          runtimeType == other.runtimeType &&
+          ListEquality().equals(books, other.books) &&
+          search == other.search;
+
+  @override
+  int get hashCode => books.hashCode ^ search.hashCode;
 }
 
 class CatalogBloc extends Bloc<CatalogEvent, CatalogState> {
@@ -46,22 +63,52 @@ class CatalogBloc extends Bloc<CatalogEvent, CatalogState> {
   final BooksApi booksApi;
 
   @override
-  CatalogState get initialState => Loaded(pageNumber: 0, books: [], cache: []);
+  CatalogState get initialState => Loaded(
+        books: [],
+        search: '',
+      );
 
   @override
   Stream<CatalogState> mapEventToState(CatalogEvent event) async* {
     if (event is Refresh)
       yield* _mapRefresh(event);
-    else if (event is LoadMore) yield* _mapLoadMore(event);
+    else if (event is LoadMore)
+      yield* _mapLoadMore(event);
+    else if (event is Search)
+      yield* _mapSearch(event);
+    else if (event is ClearSearch) yield* _mapClearSearch();
+  }
+
+  Stream<CatalogState> _mapClearSearch() async* {
+    final s = state;
+    if (s is Loaded) {
+      yield s.copyWith(books: _cache, search: '');
+    }
+  }
+
+  Stream<CatalogState> _mapSearch(Search event) async* {
+    final s = state;
+    if (s is Loaded) {
+      yield event.value.isNotEmpty
+          ? s.copyWith(
+              search: event.value,
+              books: s.books
+                  .where((it) => it.title.contains(event.value))
+                  .toList(),
+            )
+          : s.copyWith(books: _cache);
+    }
   }
 
   Stream<CatalogState> _mapRefresh(Refresh event) async* {
     final s = state;
+    if (state is! Refreshing) yield Refreshing();
 
     if (s is Loaded) {
       try {
-        final BooksPage page = await booksApi.getBooksPage(s._pageNumber);
-        yield s.copyWith(books: page.books);
+        final List<Book> fetchedBooks = await booksApi.getBooks();
+        _cache.addAll(fetchedBooks);
+        yield s.copyWith(books: fetchedBooks);
       } catch (e) {
         yield Error();
       }
@@ -74,12 +121,11 @@ class CatalogBloc extends Bloc<CatalogEvent, CatalogState> {
 
     if (s is Loaded) {
       try {
-        final BooksPage page = await booksApi.getBooksPage(s._pageNumber);
-        _cache.addAll(page.books);
-        yield s.copyWith(books: _cache);
+        final List<Book> fetchedBooks = await booksApi.getBooks();
+        _cache.addAll(fetchedBooks);
+        yield s.copyWith(books: fetchedBooks);
       } catch (e) {
         yield Error();
-        yield s.copyWith();
       }
     }
   }

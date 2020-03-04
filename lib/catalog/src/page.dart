@@ -7,6 +7,7 @@ import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:provider/provider.dart';
 
 class Page extends StatelessWidget {
   @override
@@ -71,24 +72,49 @@ class _SearchBar extends StatelessWidget {
         child: Container(
           height: 80,
           color: Colors.grey.shade100.withOpacity(.7),
-          child: Center(
-            child: Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 40),
-              child: TextField(
-                decoration: InputDecoration(
-                  prefixIcon: Icon(Icons.search, color: Colors.grey.shade500),
-                  fillColor: Colors.white.withOpacity(.3),
-                  filled: true,
-                  border: OutlineInputBorder(
-                    borderSide: BorderSide.none,
-                    borderRadius: BorderRadius.all(Radius.circular(100)),
-                  ),
-                ),
-              ),
+          child: Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 40, vertical: 10),
+            child: ChangeNotifierProvider(
+              create: (_) => TextEditingController(),
+              child: _SearchInput(),
             ),
           ),
         ),
       ),
+    );
+  }
+}
+
+class _SearchInput extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    return TextField(
+      controller: context.repository(),
+      onChanged: (value) => context.bloc<CatalogBloc>().add(Search(value)),
+      style: TextStyle(fontSize: 24),
+      decoration: InputDecoration(
+        prefixIcon: Icon(Icons.search, color: Colors.grey.shade500),
+        suffix: _ClearSearch(),
+        fillColor: Colors.white.withOpacity(.3),
+        filled: true,
+        border: OutlineInputBorder(
+          borderSide: BorderSide.none,
+          borderRadius: BorderRadius.all(Radius.circular(100)),
+        ),
+      ),
+    );
+  }
+}
+
+class _ClearSearch extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    return IconButton(
+      icon: Icon(Icons.clear, color: Colors.grey.shade500),
+      onPressed: () {
+        context.bloc<CatalogBloc>().add(ClearSearch());
+        context.repository<TextEditingController>().clear();
+      },
     );
   }
 }
