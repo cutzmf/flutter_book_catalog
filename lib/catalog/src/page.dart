@@ -89,7 +89,7 @@ class _SearchBar extends StatelessWidget {
         filter: ImageFilter.blur(sigmaX: 10.0, sigmaY: 10.0),
         child: Container(
           height: 80,
-          color: Colors.grey.shade100.withOpacity(.7),
+          color: Colors.grey.shade400.withOpacity(.6),
           child: Padding(
             padding: const EdgeInsets.symmetric(horizontal: 40, vertical: 10),
             child: ChangeNotifierProvider(
