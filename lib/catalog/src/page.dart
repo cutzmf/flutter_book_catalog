@@ -1,6 +1,7 @@
 import 'dart:ui';
 
 import 'package:bookcatalog/book/book.dart';
+import 'package:bookcatalog/bookify_icons_icons.dart';
 import 'package:bookcatalog/catalog/src/bloc.dart';
 import 'package:bookcatalog/strings.dart';
 import 'package:cached_network_image/cached_network_image.dart';
@@ -52,11 +53,11 @@ class _BooksList extends StatelessWidget {
         return GridView.builder(
           gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
             crossAxisCount: 2,
-            childAspectRatio: 0.65,
+            childAspectRatio: 140 / 220,
           ),
           itemCount: loaded.books.length,
           itemBuilder: (context, index) =>
-              BookListItem(book: loaded.books[index]),
+              BookListItem(book: loaded.books[index], isLeft: index.isEven),
         );
       },
     );
@@ -111,7 +112,7 @@ class _SearchInput extends StatelessWidget {
       onChanged: (value) => context.bloc<CatalogBloc>().add(Search(value)),
       style: TextStyle(fontSize: 24),
       decoration: InputDecoration(
-        prefixIcon: Icon(Icons.search, color: Colors.grey.shade500),
+        prefixIcon: Icon(BookifyIcons.search, color: Colors.white),
         suffix: _ClearSearch(),
         fillColor: Colors.white.withOpacity(.3),
         filled: true,
@@ -128,7 +129,7 @@ class _ClearSearch extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return IconButton(
-      icon: Icon(Icons.clear, color: Colors.grey.shade500),
+      icon: Icon(Icons.clear, color: Colors.white),
       onPressed: () {
         context.bloc<CatalogBloc>().add(ClearSearch());
         context.repository<TextEditingController>().clear();
@@ -139,6 +140,7 @@ class _ClearSearch extends StatelessWidget {
 
 class BookListItem extends StatelessWidget {
   final Book book;
+  final bool isLeft;
 
   @override
   Widget build(BuildContext context) {
@@ -146,36 +148,41 @@ class BookListItem extends StatelessWidget {
       return InkWell(
         onTap: () => Navigator.push(context, detailsRoute(book, context)),
         child: Center(
-          child: SizedBox(
-            width: c.maxWidth * .9,
+          child: Padding(
+            padding: isLeft
+                ? const EdgeInsets.only(left: 12)
+                : const EdgeInsets.only(right: 12),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: <Widget>[
                 SizedBox(height: c.maxHeight * .05),
                 Container(
-                  height: c.maxHeight * .7,
-                  child: Stack(
-                    fit: StackFit.expand,
-                    children: <Widget>[
-                      BookCover(book),
-                      Align(
-                        child: _Price(book.price),
-                        alignment: Alignment.bottomLeft,
-                      ),
-                    ],
+                  width: c.maxWidth * .756,
+                  child: AspectRatio(
+                    aspectRatio: 140 / 220,
+                    child: Stack(
+                      fit: StackFit.expand,
+                      children: <Widget>[
+                        BookCover(book),
+                        Align(
+                          child: _Price(book.price),
+                          alignment: Alignment.bottomLeft,
+                        ),
+                      ],
+                    ),
                   ),
                 ),
                 SizedBox(height: 8),
                 Text(
                   book.title,
-                  style: TextStyle(fontWeight: FontWeight.w500),
+                  style: TextStyle(fontWeight: FontWeight.w600, fontSize: 12),
                   maxLines: 1,
                   softWrap: false,
                   overflow: TextOverflow.fade,
                 ),
                 Text(
                   book.author,
-                  style: TextStyle(fontWeight: FontWeight.w300),
+                  style: TextStyle(fontWeight: FontWeight.w300, fontSize: 11),
                 ),
               ],
             ),
@@ -187,6 +194,7 @@ class BookListItem extends StatelessWidget {
 
   const BookListItem({
     @required this.book,
+    @required this.isLeft,
   });
 }
 
@@ -214,7 +222,6 @@ class BookCover extends StatelessWidget {
             fit: BoxFit.cover,
             child: CachedNetworkImage(
               imageUrl: book.imageUrl,
-              //TODO placeholder while loading
             ),
           ),
         ),
