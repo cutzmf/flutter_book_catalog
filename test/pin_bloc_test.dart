@@ -33,10 +33,12 @@ void main() {
         NewPin(entered: '1'),
         NewPin(entered: '11'),
         NewPin(entered: '111'),
+        NewPin(entered: '1111'),
         RepeatPin(entered: '', firstPin: '1111', notEqualToFirst: false),
         RepeatPin(entered: '1', firstPin: '1111', notEqualToFirst: false),
         RepeatPin(entered: '11', firstPin: '1111', notEqualToFirst: false),
         RepeatPin(entered: '111', firstPin: '1111', notEqualToFirst: false),
+        RepeatPin(entered: '1111', firstPin: '1111', notEqualToFirst: false),
         isA<LoggedIn>(),
       ],
     );
@@ -64,12 +66,14 @@ void main() {
         NewPin(entered: '1'),
         NewPin(entered: '11'),
         NewPin(entered: '111'),
+        NewPin(entered: '1111'),
         RepeatPin(entered: '', firstPin: '1111', notEqualToFirst: false),
         RepeatPin(entered: '1', firstPin: '1111', notEqualToFirst: false),
         RepeatPin(entered: '11', firstPin: '1111', notEqualToFirst: false),
         RepeatPin(entered: '111', firstPin: '1111', notEqualToFirst: false),
         RepeatPin(entered: '1112', firstPin: '1111', notEqualToFirst: true),
         RepeatPin(entered: '111', firstPin: '1111', notEqualToFirst: false),
+        RepeatPin(entered: '1111', firstPin: '1111', notEqualToFirst: false),
         isA<LoggedIn>(),
       ],
     );
@@ -92,6 +96,7 @@ void main() {
         HavePin(entered: '1', storedPin: '1111', isInputWrong: false),
         HavePin(entered: '11', storedPin: '1111', isInputWrong: false),
         HavePin(entered: '111', storedPin: '1111', isInputWrong: false),
+        HavePin(entered: '1111', storedPin: '1111', isInputWrong: false),
         isA<LoggedIn>(),
       ],
     );
@@ -116,6 +121,7 @@ void main() {
         HavePin(entered: '111', storedPin: '1111', isInputWrong: false),
         HavePin(entered: '1112', storedPin: '1111', isInputWrong: true),
         HavePin(entered: '111', storedPin: '1111', isInputWrong: false),
+        HavePin(entered: '1111', storedPin: '1111', isInputWrong: false),
         isA<LoggedIn>(),
       ],
     );
