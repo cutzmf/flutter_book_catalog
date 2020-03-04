@@ -55,9 +55,13 @@ class _BooksList extends StatelessWidget {
             crossAxisCount: 2,
             childAspectRatio: 140 / 220,
           ),
-          itemCount: loaded.books.length,
-          itemBuilder: (context, index) =>
-              BookListItem(book: loaded.books[index], isLeft: index.isEven),
+          itemCount: loaded.books.length + 1,
+          itemBuilder: (context, index) {
+            /// TODO solve this +1 quick fix. Last items partially hidden under the [_SearchBar]
+            if (index + 1 > loaded.books.length) return SizedBox.shrink();
+            return BookListItem(
+                book: loaded.books[index], isLeft: index.isEven);
+          },
         );
       },
     );
