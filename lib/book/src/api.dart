@@ -1,4 +1,7 @@
+import 'dart:math';
+
 import 'package:bookcatalog/book/src/model.dart';
+import 'package:lorem_cutesum/lorem_cutesum.dart';
 import 'package:meta/meta.dart';
 
 class BooksPage {
@@ -12,14 +15,18 @@ class BooksPage {
 }
 
 class BooksApi {
+  static const _mockSize = 60;
+  static final _random = Random();
   final List<Book> _mock = List.generate(
-    60,
+    _mockSize,
     (index) {
       return Book(
         id: index,
-        title: index.toString(),
-        shortDescription: index.toString(),
-        price: index,
+        title: Cutesum.loremCutesum(words: 3),
+        shortDescription: Cutesum.loremCutesum(),
+        price: _random.nextInt(3) * 1000 +
+            _random.nextInt(10) * 100 +
+            _random.nextInt(10) * 10,
         imageUrl: 'https://picsum.photos/seed/$index/200/300',
       );
     },
