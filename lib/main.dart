@@ -1,5 +1,6 @@
 import 'package:bookcatalog/pin/pin.dart';
 import 'package:bookcatalog/pin/src/page.dart';
+import 'package:bookcatalog/themes.dart';
 import 'package:bookcatalog/utils/bloc_printer_delegate.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -35,9 +36,7 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp(
       title: 'Books Catalog',
-      theme: ThemeData(
-        primarySwatch: Colors.blue,
-      ),
+      theme: theme,
       home: PinPage(),
     );
   }

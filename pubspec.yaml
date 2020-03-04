@@ -67,6 +67,12 @@ flutter:
     - family: BookifyIcons
       fonts:
         - asset: fonts/BookifyIcons.ttf
+
+    - family: Montserrat
+      fonts:
+        - asset: fonts/Montserrat-Regular.ttf
+        - asset: fonts/Montserrat-Bold.ttf
+
   #       - asset: fonts/Schyler-Italic.ttf
   #         style: italic
   #   - family: Trajan Pro
