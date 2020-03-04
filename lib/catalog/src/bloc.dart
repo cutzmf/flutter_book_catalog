@@ -92,7 +92,7 @@ class CatalogBloc extends Bloc<CatalogEvent, CatalogState> {
       yield event.value.isNotEmpty
           ? s.copyWith(
               search: event.value,
-              books: s.books
+              books: _cache
                   .where((it) => it.title.contains(event.value))
                   .toList(),
             )
