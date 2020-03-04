@@ -39,7 +39,7 @@ void main() {
     );
 
     blocTest(
-      'refreshing',
+      'initial load & refreshing',
       build: () async {
         when(api.getBooks()).thenAnswer((_) => Future.value([book1]));
         return CatalogBloc(booksApi: api);
@@ -48,7 +48,7 @@ void main() {
       expect: [
         isA<Loading>(),
         Loaded(books: [book1], search: ''),
-        isA<Loading>(),
+        isA<Refreshing>(),
         Loaded(books: [book1], search: ''),
       ],
     );

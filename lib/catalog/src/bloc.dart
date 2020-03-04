@@ -22,7 +22,7 @@ abstract class CatalogState {}
 
 class Loading implements CatalogState {}
 
-class Refreshing extends Loading {}
+class Refreshing implements CatalogState {}
 
 class Error implements CatalogState {}
 
@@ -59,7 +59,7 @@ class Loaded implements CatalogState {
 
 class CatalogBloc extends Bloc<CatalogEvent, CatalogState> {
   /// for sake of simplicity of memory cache
-  final List<Book> _cache = [];
+  List<Book> _cache = [];
   final BooksApi booksApi;
 
   @override
@@ -102,12 +102,13 @@ class CatalogBloc extends Bloc<CatalogEvent, CatalogState> {
 
   Stream<CatalogState> _mapRefresh(Refresh event) async* {
     final s = state;
-    if (state is! Refreshing) yield Refreshing();
 
     if (s is Loaded) {
+      yield Refreshing();
+
       try {
         final List<Book> fetchedBooks = await booksApi.getBooks();
-        _cache.addAll(fetchedBooks);
+        _cache = fetchedBooks;
         yield s.copyWith(books: fetchedBooks);
       } catch (e) {
         yield Error();
@@ -122,7 +123,7 @@ class CatalogBloc extends Bloc<CatalogEvent, CatalogState> {
     if (s is Loaded) {
       try {
         final List<Book> fetchedBooks = await booksApi.getBooks();
-        _cache.addAll(fetchedBooks);
+        _cache = fetchedBooks;
         yield s.copyWith(books: fetchedBooks);
       } catch (e) {
         yield Error();
