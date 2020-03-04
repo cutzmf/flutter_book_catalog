@@ -185,7 +185,8 @@ class PinBloc extends Bloc<PinEvent, PinState> {
     }
   }
 
-  String _removeLast(String string) => string.substring(0, string.length - 1);
+  String _removeLast(String string) =>
+      string.isEmpty ? string : string.substring(0, string.length - 1);
 
   PinBloc({
     @required this.pinRepository,
