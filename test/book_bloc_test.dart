@@ -42,7 +42,7 @@ void main() {
       act: (bloc) => bloc.add(Refresh()),
       expect: [
         isA<Loading>(),
-        isA<NoUpdates>(),
+        Loaded(book: book),
       ],
     );
 
@@ -79,6 +79,40 @@ void main() {
         isA<Error>(),
       ],
     );
+
+    blocTest(
+      'buy succeed',
+      build: () async {
+        when(api.buyBook(any)).thenAnswer((_) => Future.value(true));
+
+        return BookBloc(
+          book: book,
+          booksApi: api,
+        );
+      },
+      act: (bloc) => bloc.add(Buy()),
+      expect: [
+        isA<Buying>(),
+        isA<SucceedBuy>(),
+      ],
+    );
+
+    blocTest(
+      'buy throwed error',
+      build: () async {
+        when(api.buyBook(any)).thenThrow(Exception('network'));
+
+        return BookBloc(
+          book: book,
+          booksApi: api,
+        );
+      },
+      act: (bloc) => bloc.add(Buy()),
+      expect: [
+        isA<Buying>(),
+        isA<Error>(),
+      ],
+    );
   });
 }
 
@@ -86,6 +120,7 @@ extension on Book {
   Book copyWith({
     int id,
     String title,
+    String author,
     String shortDescription,
     int price,
     String imageUrl,
@@ -93,6 +128,7 @@ extension on Book {
     return new Book(
       id: id ?? this.id,
       title: title ?? this.title,
+      author: author ?? this.author,
       shortDescription: shortDescription ?? this.shortDescription,
       price: price ?? this.price,
       imageUrl: imageUrl ?? this.imageUrl,
