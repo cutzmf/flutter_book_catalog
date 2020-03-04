@@ -27,13 +27,23 @@ class BooksApi {
 
   static const pageSize = 20;
 
-  Future<List<Book>> getBooks() => Future.delayed(
-        Duration(milliseconds: 2800),
-        () => _mock,
-      );
+  int _failCounter = 0;
 
+  /// fails every even call
+  Future<List<Book>> getBooks() {
+    return Future.delayed(
+      Duration(milliseconds: 2500),
+      () => (++_failCounter).isEven
+          ? Exception('dummy network exception')
+          : _mock,
+    );
+  }
+
+  /// fails every even call
   Future<Book> getBookById(int id) => Future.delayed(
-        Duration(milliseconds: 800),
-        () => _mock.firstWhere((it) => it.id == id),
+        Duration(milliseconds: 1000),
+        () => (++_failCounter).isEven
+            ? Exception('dummy network exception')
+            : _mock.firstWhere((it) => it.id == id),
       );
 }
