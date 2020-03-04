@@ -23,41 +23,59 @@ class Page extends StatelessWidget {
         child: Stack(
           children: <Widget>[
             RefreshIndicator(
+              color: Colors.grey,
+              backgroundColor: Colors.grey.shade200,
               onRefresh: () {
                 // ignore: close_sinks
                 final CatalogBloc bloc = context.bloc();
                 bloc.add(Refresh());
                 return bloc.skip(1).firstWhere((it) => it is! Refreshing);
               },
-              child: BlocBuilder<CatalogBloc, CatalogState>(
-                condition: (_, state) => state is Loaded,
-                builder: (context, state) {
-                  final Loaded loaded = state;
-                  return ListView.builder(
-                    itemCount: loaded.books.length,
-                    itemBuilder: (context, index) =>
-                        BookListItem(book: loaded.books[index]),
-                  );
-                },
-              ),
+              child: _BooksList(),
             ),
-            BlocBuilder<CatalogBloc, CatalogState>(
-              condition: (before, now) => before is Loading || now is Loading,
-              builder: (context, state) {
-                if (state is Loading)
-                  return Center(
-                    child: CircularProgressIndicator(),
-                  );
-                return SizedBox.shrink();
-              },
-            ),
-            Align(
-              alignment: Alignment.bottomCenter,
-              child: _SearchBar(),
-            ),
+            Center(child: _LoadingIndicator()),
+            Align(child: _SearchBar(), alignment: Alignment.bottomCenter),
           ],
         ),
       ),
+    );
+  }
+}
+
+class _BooksList extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    return BlocBuilder<CatalogBloc, CatalogState>(
+      condition: (_, state) => state is Loaded,
+      builder: (context, state) {
+        final Loaded loaded = state;
+        return GridView.builder(
+          gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+            crossAxisCount: 2,
+            childAspectRatio: 0.65,
+          ),
+          itemCount: loaded.books.length,
+          itemBuilder: (context, index) =>
+              BookListItem(book: loaded.books[index]),
+        );
+      },
+    );
+  }
+}
+
+class _LoadingIndicator extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    return BlocBuilder<CatalogBloc, CatalogState>(
+      condition: (before, now) => before is Loading || now is Loading,
+      builder: (context, state) {
+        if (state is Loading)
+          return CircularProgressIndicator(
+            valueColor: AlwaysStoppedAnimation<Color>(Colors.grey),
+            backgroundColor: Colors.grey.shade200,
+          );
+        return SizedBox.shrink();
+      },
     );
   }
 }
@@ -124,45 +142,103 @@ class BookListItem extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Card(
-      child: IntrinsicHeight(
-        child: Row(
-          children: <Widget>[
-            SizedBox(
-              height: 100,
-              width: 100,
-              child: CachedNetworkImage(
-                imageUrl: book.imageUrl,
-              ),
-            ),
-            Expanded(
-              child: Column(
-                children: <Widget>[
-                  Text(book.title),
-                  Text(book.author),
-                  Text(book.price.toString()),
-                  Text(book.shortDescription),
-                  Align(
-                    alignment: Alignment.centerRight,
-                    child: FlatButton(
-                      child: Text(S.details),
-                      shape: StadiumBorder(
-                        side: BorderSide(),
+    return LayoutBuilder(builder: (context, c) {
+      return InkWell(
+        onTap: () => Navigator.push(context, detailsRoute(book, context)),
+        child: Center(
+          child: SizedBox(
+            width: c.maxWidth * .9,
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: <Widget>[
+                SizedBox(height: c.maxHeight * .05),
+                Container(
+                  height: c.maxHeight * .7,
+                  decoration: BoxDecoration(
+                    boxShadow: [
+                      BoxShadow(
+                        color: Colors.grey,
+                        blurRadius: 10,
                       ),
-                      onPressed: () =>
-                          Navigator.push(context, detailsRoute(book, context)),
-                    ),
+                    ],
                   ),
-                ],
-              ),
+                  child: _BookCover(book),
+                ),
+                SizedBox(height: 8),
+                Text(
+                  book.title,
+                  style: TextStyle(fontWeight: FontWeight.w500),
+                  maxLines: 1,
+                  softWrap: false,
+                  overflow: TextOverflow.fade,
+                ),
+                Text(
+                  book.author,
+                  style: TextStyle(fontWeight: FontWeight.w300),
+                ),
+              ],
             ),
-          ],
+          ),
         ),
-      ),
-    );
+      );
+    });
   }
 
   const BookListItem({
     @required this.book,
   });
+}
+
+class _BookCover extends StatelessWidget {
+  final Book book;
+
+  _BookCover(this.book);
+
+  @override
+  Widget build(BuildContext context) {
+    return ClipRRect(
+      borderRadius: BorderRadius.all(Radius.circular(8)),
+      child: Stack(
+        fit: StackFit.expand,
+        children: <Widget>[
+          FittedBox(
+            fit: BoxFit.cover,
+            child: CachedNetworkImage(
+              imageUrl: book.imageUrl,
+              //TODO placeholder while loading
+            ),
+          ),
+          Align(
+            child: _Price(book.price),
+            alignment: Alignment.bottomLeft,
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _Price extends StatelessWidget {
+  final int price;
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: const EdgeInsets.all(4),
+      margin: const EdgeInsets.all(4),
+      decoration: BoxDecoration(
+          color: Colors.grey.shade500.withOpacity(.5),
+          borderRadius: BorderRadius.all(Radius.circular(10))),
+      child: Text(
+        '$price \u20BD',
+        style: TextStyle(
+          fontSize: 16,
+          fontWeight: FontWeight.w400,
+          color: Colors.white,
+        ),
+      ),
+    );
+  }
+
+  _Price(this.price);
 }
