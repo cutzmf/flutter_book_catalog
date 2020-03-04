@@ -152,13 +152,13 @@ class BookListItem extends StatelessWidget {
             padding: isLeft
                 ? const EdgeInsets.only(left: 12)
                 : const EdgeInsets.only(right: 12),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: <Widget>[
-                SizedBox(height: c.maxHeight * .05),
-                Container(
-                  width: c.maxWidth * .756,
-                  child: AspectRatio(
+            child: SizedBox(
+              width: c.maxWidth * .756,
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: <Widget>[
+                  SizedBox(height: c.maxHeight * .05),
+                  AspectRatio(
                     aspectRatio: 140 / 220,
                     child: Stack(
                       fit: StackFit.expand,
@@ -171,20 +171,23 @@ class BookListItem extends StatelessWidget {
                       ],
                     ),
                   ),
-                ),
-                SizedBox(height: 8),
-                Text(
-                  book.title,
-                  style: TextStyle(fontWeight: FontWeight.w600, fontSize: 12),
-                  maxLines: 1,
-                  softWrap: false,
-                  overflow: TextOverflow.fade,
-                ),
-                Text(
-                  book.author,
-                  style: TextStyle(fontWeight: FontWeight.w300, fontSize: 11),
-                ),
-              ],
+                  SizedBox(height: 8),
+                  Text(
+                    book.title,
+                    style: TextStyle(fontWeight: FontWeight.w600, fontSize: 12),
+                    maxLines: 2,
+                    softWrap: true,
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                  Text(
+                    book.author,
+                    maxLines: 2,
+                    softWrap: true,
+                    overflow: TextOverflow.ellipsis,
+                    style: TextStyle(fontWeight: FontWeight.w300, fontSize: 11),
+                  ),
+                ],
+              ),
             ),
           ),
         ),
