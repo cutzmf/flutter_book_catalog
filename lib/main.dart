@@ -3,6 +3,7 @@ import 'package:bookcatalog/pin/src/page.dart';
 import 'package:bookcatalog/themes.dart';
 import 'package:bookcatalog/utils/bloc_printer_delegate.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -14,6 +15,8 @@ void main() async {
   } else {
     BlocSupervisor.delegate = PrinterBlocDelegate();
   }
+
+  await SystemChrome.setPreferredOrientations([DeviceOrientation.portraitUp]);
 
   SharedPreferences sharedPreferencesInstance =
       await SharedPreferences.getInstance();
