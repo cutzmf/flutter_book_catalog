@@ -1,7 +1,7 @@
 import 'package:bookcatalog/catalog/catalog.dart' as catalog;
 import 'package:bookcatalog/strings.dart';
+import 'package:bookcatalog/utils/context_extension.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:provider/provider.dart';
@@ -13,10 +13,6 @@ class PinPage extends StatelessWidget {
   Widget build(BuildContext context) {
     return SafeArea(
       child: Scaffold(
-        appBar: AppBar(
-          leading: null,
-          title: Text(S.login),
-        ),
         body: BlocProvider(
           create: (context) => PinBloc(pinRepository: context.repository()),
           child: BlocConsumer<PinBloc, PinState>(
@@ -46,7 +42,9 @@ class PinPage extends StatelessWidget {
             },
             builder: (context, state) {
               if (state is HavePin) return _EnterPin();
-              return _EnterNewAndRepeat();
+              if (state is NewPin || state is RepeatPin)
+                return _EnterNewAndRepeat();
+              return SizedBox.shrink();
             },
           ),
         ),
@@ -62,7 +60,7 @@ class _EnterPin extends StatelessWidget {
   }
 }
 
-const Duration _pageDuration = const Duration(milliseconds: 170);
+const Duration _pageDuration = const Duration(milliseconds: 270);
 const Curve _pageCurve = Curves.easeIn;
 
 class _EnterNewAndRepeat extends StatelessWidget {
@@ -83,6 +81,7 @@ class _EnterNewAndRepeat extends StatelessWidget {
         builder: (context, state) {
           return PageView(
             controller: context.repository(),
+            physics: NeverScrollableScrollPhysics(),
             children: <Widget>[
               _FirstPin(),
               _SecondPin(),
@@ -94,34 +93,34 @@ class _EnterNewAndRepeat extends StatelessWidget {
   }
 }
 
-class _FirstPin extends _AttemptPin {
-  _FirstPin() : super(S.enterPin);
-}
-
-class _SecondPin extends _AttemptPin {
-  _SecondPin() : super(S.repeatPin);
-}
-
-abstract class _AttemptPin extends StatelessWidget {
-  final String text;
-
-  _AttemptPin(this.text);
-
+class _FirstPin extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
-    return BlocListener<PinBloc, PinState>(
-      listener: (context, state) {
-        if (state is RepeatPin || state is NewPin) {
-          final focusScope = FocusScope.of(context);
-          if (!focusScope.hasPrimaryFocus) focusScope.unfocus();
-        }
+    return BlocBuilder<PinBloc, PinState>(
+      condition: (p, s) => p is NewPin && s is NewPin,
+      builder: (context, state) {
+        final NewPin s = state;
+        return _AttemptPin(
+          text: S.enterNewPin,
+          filledDots: s.entered.length,
+        );
       },
-      child: Column(
-        children: <Widget>[
-          Text(text),
-          _PinInput(),
-        ],
-      ),
+    );
+  }
+}
+
+class _SecondPin extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    return BlocBuilder<PinBloc, PinState>(
+      condition: (p, s) => p is RepeatPin && s is RepeatPin,
+      builder: (context, state) {
+        final RepeatPin s = state;
+        return _AttemptPin(
+          text: S.repeatPin,
+          filledDots: s.entered.length,
+        );
+      },
     );
   }
 }
@@ -129,14 +128,188 @@ abstract class _AttemptPin extends StatelessWidget {
 class _PinInput extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
-    return TextField(
-      onChanged: (value) => context.bloc<PinBloc>().add(PinInput(value)),
-      autofocus: true,
-      keyboardType: TextInputType.number,
-      inputFormatters: [
-        WhitelistingTextInputFormatter.digitsOnly,
-        LengthLimitingTextInputFormatter(kMaxPinLength),
+    return BlocBuilder<PinBloc, PinState>(
+      condition: (p, s) => p is HavePin && s is HavePin,
+      builder: (context, state) {
+        final HavePin s = state;
+        return _AttemptPin(
+          text: S.enterPin,
+          filledDots: s.entered.length,
+        );
+      },
+    );
+  }
+}
+
+class _AttemptPin extends StatelessWidget {
+  final String text;
+  final int filledDots;
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      mainAxisAlignment: MainAxisAlignment.center,
+      children: <Widget>[
+        SizedBox(height: 50),
+        Text(
+          text,
+          style: TextStyle(fontSize: 20),
+        ),
+        SizedBox(height: 24),
+        PinCodeDots(
+          dotsCount: kMaxPinLength,
+          filledCount: filledDots,
+        ),
+        SizedBox(height: 24),
+        PinKeyboard(
+          onDigit: (digit) => context.bloc<PinBloc>().add(PinInput(digit)),
+          onBackspace: () => context.bloc<PinBloc>().add(PinBackspace()),
+        ),
       ],
+    );
+  }
+
+  const _AttemptPin({
+    @required this.text,
+    @required this.filledDots,
+  });
+}
+
+class PinKeyboard extends StatelessWidget {
+  final ValueChanged<int> onDigit;
+  final VoidCallback onBackspace;
+
+  PinKeyboard({
+    @required this.onDigit,
+    @required this.onBackspace,
+  });
+
+  Widget _numKey(int num) => _Key(
+        onTap: () => onDigit(num),
+        child: Text(
+          '$num',
+          style: TextStyle(
+            color: Colors.black,
+            fontSize: 40,
+          ),
+        ),
+      );
+
+  @override
+  Widget build(BuildContext context) {
+    return IntrinsicWidth(
+      child: Container(
+        margin: EdgeInsets.only(
+          bottom: context.screenWidth * .13333,
+        ),
+        child: Row(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: <Widget>[
+            Column(
+              children: <Widget>[
+                for (var i = 1; i <= 7; i = i + 3) _numKey(i),
+              ],
+            ),
+            Column(
+              children: <Widget>[
+                for (var i = 2; i <= 8; i = i + 3) _numKey(i),
+                _numKey(0),
+              ],
+            ),
+            Column(
+              children: <Widget>[
+                for (var i = 3; i <= 9; i = i + 3) _numKey(i),
+                if (onBackspace != null)
+                  _Key(
+                    onTap: onBackspace,
+                    child: Icon(Icons.backspace),
+                  ),
+              ],
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+class _Key extends StatelessWidget {
+  final Widget child;
+  final VoidCallback onTap;
+
+  const _Key({this.child, this.onTap});
+
+  @override
+  Widget build(BuildContext context) {
+    final size = context.screenWidth * .192;
+    final margin = context.screenWidth * 0.021333333;
+    return Container(
+      width: size,
+      height: size,
+      decoration: BoxDecoration(
+        shape: BoxShape.circle,
+        border: Border.all(),
+      ),
+      margin: EdgeInsets.all(margin),
+      child: InkWell(
+        onTap: onTap,
+        customBorder: CircleBorder(side: BorderSide()),
+        child: Center(
+          child: child,
+        ),
+      ),
+    );
+  }
+}
+
+class PinCodeDots extends StatelessWidget {
+  final int filledCount;
+  final int dotsCount;
+  static const margins = .372;
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: EdgeInsets.symmetric(horizontal: context.screenWidth * margins),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: [
+          for (var i = 1; i <= dotsCount; i++)
+            SizedBox(
+              width: context.screenWidth * (1 - 2 * margins) * .125,
+              child: AspectRatio(
+                aspectRatio: 1,
+                child: _Dot(i <= filledCount),
+              ),
+            ),
+        ],
+      ),
+    );
+  }
+
+  PinCodeDots({
+    @required this.filledCount,
+    @required this.dotsCount,
+  });
+}
+
+class _Dot extends StatelessWidget {
+  final bool isFilled;
+
+  _Dot(this.isFilled);
+
+  @override
+  Widget build(BuildContext context) {
+    return AnimatedContainer(
+      duration: Duration(milliseconds: 270),
+      decoration: BoxDecoration(
+        color: isFilled ? Colors.black : Colors.transparent,
+        shape: BoxShape.circle,
+        border: Border.all(
+          color: Colors.black,
+          width: 1,
+        ),
+      ),
     );
   }
 }
