@@ -154,15 +154,16 @@ class BookListItem extends StatelessWidget {
                 SizedBox(height: c.maxHeight * .05),
                 Container(
                   height: c.maxHeight * .7,
-                  decoration: BoxDecoration(
-                    boxShadow: [
-                      BoxShadow(
-                        color: Colors.grey,
-                        blurRadius: 10,
+                  child: Stack(
+                    fit: StackFit.expand,
+                    children: <Widget>[
+                      BookCover(book),
+                      Align(
+                        child: _Price(book.price),
+                        alignment: Alignment.bottomLeft,
                       ),
                     ],
                   ),
-                  child: _BookCover(book),
                 ),
                 SizedBox(height: 8),
                 Text(
@@ -189,30 +190,34 @@ class BookListItem extends StatelessWidget {
   });
 }
 
-class _BookCover extends StatelessWidget {
+class BookCover extends StatelessWidget {
   final Book book;
 
-  _BookCover(this.book);
+  BookCover(this.book);
 
   @override
   Widget build(BuildContext context) {
-    return ClipRRect(
-      borderRadius: BorderRadius.all(Radius.circular(8)),
-      child: Stack(
-        fit: StackFit.expand,
-        children: <Widget>[
-          FittedBox(
+    return Hero(
+      tag: book.id,
+      child: Container(
+        decoration: BoxDecoration(
+          boxShadow: [
+            BoxShadow(
+              color: Colors.grey,
+              blurRadius: 10,
+            ),
+          ],
+        ),
+        child: ClipRRect(
+          borderRadius: BorderRadius.all(Radius.circular(4)),
+          child: FittedBox(
             fit: BoxFit.cover,
             child: CachedNetworkImage(
               imageUrl: book.imageUrl,
               //TODO placeholder while loading
             ),
           ),
-          Align(
-            child: _Price(book.price),
-            alignment: Alignment.bottomLeft,
-          ),
-        ],
+        ),
       ),
     );
   }

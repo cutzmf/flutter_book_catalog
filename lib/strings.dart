@@ -10,4 +10,5 @@ class S {
       'Проверьте соединение с интернетом и попробуйте еще раз';
   static const buy = 'Купить';
   static const details = 'Подробнее';
+  static const shortDescription = 'Краткое описание';
 }

@@ -24,7 +24,7 @@ class BooksApi {
         id: index,
         title: Cutesum.loremCutesum(words: 3),
         author: Cutesum.loremCutesum(words: 2).replaceAllMapped('.', (_)=>''),
-        shortDescription: Cutesum.loremCutesum(),
+        shortDescription: Cutesum.loremCutesum(words: 50),
         price: _random.nextInt(3) * 1000 +
             _random.nextInt(10) * 100 +
             _random.nextInt(10) * 10,

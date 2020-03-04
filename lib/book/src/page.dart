@@ -1,8 +1,10 @@
 import 'dart:ui';
 
 import 'package:bookcatalog/book/src/bloc.dart';
+import 'package:bookcatalog/bookify_icons_icons.dart';
+import 'package:bookcatalog/catalog/src/page.dart';
 import 'package:bookcatalog/strings.dart';
-import 'package:cached_network_image/cached_network_image.dart';
+import 'package:bookcatalog/utils/context_extension.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -19,49 +21,96 @@ class Page extends StatelessWidget {
                 onRefresh: () => Future.delayed(Duration(seconds: 1)),
                 child: ListView(
                   children: [
-//                    SizedBox(height: constraints.maxHeight * .01),
-                    Center(
-                      child: SizedBox(
-                        width: constraints.maxWidth * .9,
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
+                    BlocBuilder<BookBloc, BookState>(
+                      condition: (_, state) => state is Loaded,
+                      builder: (context, state) {
+                        final Loaded s = state;
+                        return Column(
+                          crossAxisAlignment: CrossAxisAlignment.center,
                           children: <Widget>[
                             SizedBox(height: constraints.maxHeight * .05),
-                            Container(
-                              height: constraints.maxHeight / 3,
-                              decoration: BoxDecoration(
-                                boxShadow: [
-                                  BoxShadow(
-                                    color: Colors.grey,
-                                    blurRadius: 10,
-                                  ),
-                                ],
+                            SizedBox(
+                              width: constraints.maxWidth * .533,
+                              child: AspectRatio(
+                                aspectRatio: 2 / 3,
+                                child: BookCover(s.book),
                               ),
-                              child: _Picture(),
                             ),
-                            SizedBox(height: 8),
+                            SizedBox(height: 30),
                             Text(
-                              'title',
-                              style: TextStyle(fontWeight: FontWeight.w500),
-                              maxLines: 1,
-                              softWrap: false,
+                              s.book.title,
+                              style: TextStyle(
+                                fontWeight: FontWeight.bold,
+                                fontSize: 30,
+                              ),
+                              maxLines: 2,
+                              softWrap: true,
+                              textAlign: TextAlign.center,
                               overflow: TextOverflow.fade,
                             ),
                             Text(
-                              'author',
-                              style: TextStyle(fontWeight: FontWeight.w300),
+                              s.book.author,
+                              style: TextStyle(
+                                fontWeight: FontWeight.normal,
+                                fontSize: 22,
+                              ),
+                            ),
+                            SizedBox(height: 28),
+                            Padding(
+                              padding:
+                                  const EdgeInsets.symmetric(horizontal: 30),
+                              child: Column(
+                                children: <Widget>[
+                                  Divider(thickness: 1, height: 0),
+                                  SizedBox(height: 19),
+                                  Align(
+                                    alignment: Alignment.centerLeft,
+                                    child: Text(
+                                      S.shortDescription,
+                                      style: TextStyle(
+                                        fontWeight: FontWeight.w500,
+                                        fontSize: 12,
+                                        color: Color(0xFF9F9F9F),
+                                      ),
+                                    ),
+                                  ),
+                                  SizedBox(height: 20),
+                                  Text(
+                                    s.book.shortDescription +
+                                        '\n\n' +
+                                        s.book.shortDescription,
+                                    style: TextStyle(
+                                      fontWeight: FontWeight.normal,
+                                      fontSize: 15,
+                                    ),
+                                  ),
+                                ],
+                              ),
                             ),
                           ],
-                        ),
+                        );
+                      },
+                    ),
+                    SizedBox(height: 40),
+                    SizedBox(
+                      height: _kBottomButtonHeight,
+                      child: Row(
+                        children: <Widget>[
+                          Expanded(
+                            flex: _kBottomFreeWidth,
+                            child: IconButton(
+                              icon: Icon(BookifyIcons.back),
+                              onPressed: () => Navigator.pop(context),
+                            ),
+                          ),
+                          Spacer(flex: _kBottomButtonWidth),
+                        ],
                       ),
                     ),
                   ],
                 ),
               ),
-              Align(
-                child: _BottomActionsBar(),
-                alignment: Alignment.bottomCenter,
-              ),
+              _BuyButton(),
             ],
           );
         },
@@ -70,84 +119,51 @@ class Page extends StatelessWidget {
   }
 }
 
-class _Picture extends StatelessWidget {
-  @override
-  Widget build(BuildContext context) {
-    return BlocBuilder<BookBloc, BookState>(
-      builder: (context, state) {
-        return CachedNetworkImage(
-          imageUrl: state is Loaded ? state.book.imageUrl : null,
-          fit: BoxFit.fitHeight,
-        );
-      },
-    );
-  }
-}
-
-class _BottomActionsBar extends StatelessWidget {
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      height: 80,
-      width: double.infinity,
-      color: Colors.transparent,
-      child: Row(
-        children: <Widget>[
-          Expanded(
-            flex: 1,
-            child: IconButton(
-              icon: Icon(Icons.keyboard_backspace),
-              onPressed: () => Navigator.pop(context),
-            ),
-          ),
-          Expanded(
-            flex: 2,
-            child: _BuyButton(),
-          ),
-        ],
-      ),
-    );
-  }
-}
+const double _kBottomButtonHeight = 80;
+const int _kBottomFreeWidth = 104;
+const int _kBottomButtonWidth = 270;
 
 class _BuyButton extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
-    return Container(
-      decoration: BoxDecoration(
-        color: Colors.black,
+    return Align(
+      alignment: Alignment.bottomRight,
+      child: ClipRRect(
         borderRadius: BorderRadius.only(topLeft: Radius.circular(20)),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withOpacity(.5),
-            blurRadius: 20,
+        child: Container(
+          height: _kBottomButtonHeight,
+          width: context.screenWidth *
+              _kBottomButtonWidth /
+              (_kBottomFreeWidth + _kBottomButtonWidth),
+          child: Material(
+            color: Colors.black,
+            child: InkWell(
+              onTap: () {},
+              splashColor: Colors.grey,
+              child: Row(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                children: <Widget>[
+                  Center(
+                    child: Text(
+                      S.buy.toUpperCase() ,
+                      style: TextStyle(
+                        fontSize: 12,
+                        color: Colors.white,
+                        fontWeight: FontWeight.w600,
+                      ),
+                    ),
+                  ),
+                  Center(
+                    child: Icon(
+                      BookifyIcons.fav,
+                      color: Colors.white,
+                    ),
+                  ),
+                ],
+              ),
+            ),
           ),
-        ],
-      ),
-      child: GestureDetector(
-        onTap: () {},
-        child: Row(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-          children: <Widget>[
-            Center(
-              child: Text(
-                S.buy,
-                style: TextStyle(
-                  fontSize: 20,
-                  color: Colors.white,
-                  fontWeight: FontWeight.w400,
-                  letterSpacing: 1.1,
-                ),
-              ),
-            ),
-            Center(
-              child: Icon(
-                Icons.add_shopping_cart,
-                color: Colors.white,
-              ),
-            ),
-          ],
         ),
       ),
     );
