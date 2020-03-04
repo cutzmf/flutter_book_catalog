@@ -138,6 +138,7 @@ class PinBloc extends Bloc<PinEvent, PinState> {
       if (s is NewPin) {
         final NewPin newPin = s.copyWith(entered: '${s.entered}${event.value}');
         if (newPin.entered.length == kMaxPinLength) {
+          yield newPin;
           yield RepeatPin(
               firstPin: newPin.entered, entered: '', notEqualToFirst: false);
         } else {
@@ -146,17 +147,18 @@ class PinBloc extends Bloc<PinEvent, PinState> {
       }
 
       if (s is RepeatPin) {
-        final RepeatPin newState =
+        final RepeatPin repeatPin =
             s.copyWith(entered: '${s.entered}${event.value}');
-        if (newState.entered.length == kMaxPinLength) {
-          if (newState.entered == s.firstPin) {
-            await pinRepository.set(newState.entered);
+        if (repeatPin.entered.length == kMaxPinLength) {
+          if (repeatPin.entered == s.firstPin) {
+            await pinRepository.set(repeatPin.entered);
+            yield repeatPin;
             yield LoggedIn();
           } else {
-            yield newState.copyWith(notEqualToFirst: true);
+            yield repeatPin.copyWith(notEqualToFirst: true);
           }
         } else {
-          yield newState;
+          yield repeatPin;
         }
       }
 
@@ -164,9 +166,10 @@ class PinBloc extends Bloc<PinEvent, PinState> {
         final HavePin newState =
             s.copyWith(entered: '${s.entered}${event.value}');
         if (newState.entered.length == kMaxPinLength) {
-          if (newState.entered == newState.storedPin)
+          if (newState.entered == newState.storedPin) {
+            yield newState;
             yield LoggedIn();
-          else
+          } else
             yield newState.copyWith(isInputWrong: true);
         } else {
           yield newState;

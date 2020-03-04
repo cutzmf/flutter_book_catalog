@@ -1,3 +1,4 @@
+import 'package:bookcatalog/bookify_icons_icons.dart';
 import 'package:bookcatalog/catalog/catalog.dart' as catalog;
 import 'package:bookcatalog/strings.dart';
 import 'package:bookcatalog/utils/context_extension.dart';
@@ -40,6 +41,7 @@ class PinPage extends StatelessWidget {
                   (_) => false,
                 );
             },
+            buildWhen: (_, s) => s is! LoggedIn,
             builder: (context, state) {
               if (state is HavePin) return _EnterPin();
               if (state is NewPin || state is RepeatPin)
@@ -97,7 +99,7 @@ class _FirstPin extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return BlocBuilder<PinBloc, PinState>(
-      condition: (p, s) => p is NewPin && s is NewPin,
+      condition: (_, s) => s is NewPin,
       builder: (context, state) {
         final NewPin s = state;
         return _AttemptPin(
@@ -113,7 +115,7 @@ class _SecondPin extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return BlocBuilder<PinBloc, PinState>(
-      condition: (p, s) => p is RepeatPin && s is RepeatPin,
+      condition: (_, s) => s is RepeatPin,
       builder: (context, state) {
         final RepeatPin s = state;
         return _AttemptPin(
@@ -129,7 +131,7 @@ class _PinInput extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return BlocBuilder<PinBloc, PinState>(
-      condition: (p, s) => p is HavePin && s is HavePin,
+      condition: (_, s) => s is HavePin,
       builder: (context, state) {
         final HavePin s = state;
         return _AttemptPin(
@@ -222,7 +224,7 @@ class PinKeyboard extends StatelessWidget {
                 if (onBackspace != null)
                   _Key(
                     onTap: onBackspace,
-                    child: Icon(Icons.backspace),
+                    child: Icon(BookifyIcons.back),
                   ),
               ],
             ),
