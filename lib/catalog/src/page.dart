@@ -1,3 +1,5 @@
+import 'dart:ui';
+
 import 'package:bookcatalog/book/book.dart';
 import 'package:bookcatalog/catalog/src/bloc.dart';
 import 'package:bookcatalog/strings.dart';
@@ -10,10 +12,6 @@ class Page extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        leading: null,
-        title: Text(S.booksCatalog),
-      ),
       body: BlocListener<CatalogBloc, CatalogState>(
         listener: (context, state) {
           if (state is Error)
@@ -52,7 +50,43 @@ class Page extends StatelessWidget {
                 return SizedBox.shrink();
               },
             ),
+            Align(
+              alignment: Alignment.bottomCenter,
+              child: _SearchBar(),
+            ),
           ],
+        ),
+      ),
+    );
+  }
+}
+
+class _SearchBar extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    return ClipRRect(
+      borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+      child: BackdropFilter(
+        filter: ImageFilter.blur(sigmaX: 10.0, sigmaY: 10.0),
+        child: Container(
+          height: 80,
+          color: Colors.grey.shade100.withOpacity(.7),
+          child: Center(
+            child: Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 40),
+              child: TextField(
+                decoration: InputDecoration(
+                  prefixIcon: Icon(Icons.search, color: Colors.grey.shade500),
+                  fillColor: Colors.white.withOpacity(.3),
+                  filled: true,
+                  border: OutlineInputBorder(
+                    borderSide: BorderSide.none,
+                    borderRadius: BorderRadius.all(Radius.circular(100)),
+                  ),
+                ),
+              ),
+            ),
+          ),
         ),
       ),
     );
