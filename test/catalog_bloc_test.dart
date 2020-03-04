@@ -54,6 +54,32 @@ void main() {
     );
 
     blocTest(
+      'refreshing failed & new refresh',
+      build: () async {
+        final answers = [
+          Future.value([book1]),
+          Future.value(Exception('')),
+          Future.value([book1, book2]),
+        ];
+        when(api.getBooks()).thenAnswer((_) => answers.removeAt(0));
+        return CatalogBloc(booksApi: api);
+      },
+      act: (bloc) {
+        bloc.add(Refresh());
+        return bloc.add(Refresh());
+      },
+      expect: [
+        isA<Loading>(),
+        Loaded(books: [book1], search: ''),
+        isA<Refreshing>(),
+        isA<Error>(),
+        Loaded(books: [book1], search: ''),
+        isA<Refreshing>(),
+        Loaded(books: [book1, book2], search: ''),
+      ],
+    );
+
+    blocTest(
       'search when no updates',
       build: () async {
         when(api.getBooks()).thenAnswer((_) => Future.value([book1, book2]));

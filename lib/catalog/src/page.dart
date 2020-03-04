@@ -27,7 +27,7 @@ class Page extends StatelessWidget {
                 // ignore: close_sinks
                 final CatalogBloc bloc = context.bloc();
                 bloc.add(Refresh());
-                return bloc.skip(1).firstWhere((it) => it is! Loading);
+                return bloc.skip(1).firstWhere((it) => it is! Refreshing);
               },
               child: BlocBuilder<CatalogBloc, CatalogState>(
                 condition: (_, state) => state is Loaded,

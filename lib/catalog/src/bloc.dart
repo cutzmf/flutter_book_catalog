@@ -112,6 +112,7 @@ class CatalogBloc extends Bloc<CatalogEvent, CatalogState> {
         yield s.copyWith(books: fetchedBooks);
       } catch (e) {
         yield Error();
+        yield s.copyWith();
       }
     }
   }
@@ -127,6 +128,7 @@ class CatalogBloc extends Bloc<CatalogEvent, CatalogState> {
         yield s.copyWith(books: fetchedBooks);
       } catch (e) {
         yield Error();
+        yield s.copyWith();
       }
     }
   }
