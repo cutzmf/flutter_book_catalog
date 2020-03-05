@@ -92,11 +92,11 @@ void main() {
       },
       skip: 0,
       expect: [
-        HavePin(entered: '', storedPin: '1111', isInputWrong: false),
-        HavePin(entered: '1', storedPin: '1111', isInputWrong: false),
-        HavePin(entered: '11', storedPin: '1111', isInputWrong: false),
-        HavePin(entered: '111', storedPin: '1111', isInputWrong: false),
-        HavePin(entered: '1111', storedPin: '1111', isInputWrong: false),
+        HavePin(entered: '', isInputWrong: false),
+        HavePin(entered: '1', isInputWrong: false),
+        HavePin(entered: '11', isInputWrong: false),
+        HavePin(entered: '111', isInputWrong: false),
+        HavePin(entered: '1111', isInputWrong: false),
         isA<LoggedIn>(),
       ],
     );
@@ -116,12 +116,12 @@ void main() {
         return bloc.add(PinInput(1));
       },
       expect: [
-        HavePin(entered: '1', storedPin: '1111', isInputWrong: false),
-        HavePin(entered: '11', storedPin: '1111', isInputWrong: false),
-        HavePin(entered: '111', storedPin: '1111', isInputWrong: false),
-        HavePin(entered: '1112', storedPin: '1111', isInputWrong: true),
-        HavePin(entered: '111', storedPin: '1111', isInputWrong: false),
-        HavePin(entered: '1111', storedPin: '1111', isInputWrong: false),
+        HavePin(entered: '1', isInputWrong: false),
+        HavePin(entered: '11', isInputWrong: false),
+        HavePin(entered: '111', isInputWrong: false),
+        HavePin(entered: '1112', isInputWrong: true),
+        HavePin(entered: '111', isInputWrong: false),
+        HavePin(entered: '1111', isInputWrong: false),
         isA<LoggedIn>(),
       ],
     );
@@ -138,9 +138,62 @@ void main() {
         return bloc.add(PinInput(2));
       },
       expect: [
-        HavePin(entered: '1', storedPin: '1111', isInputWrong: false),
-        HavePin(entered: '', storedPin: '1111', isInputWrong: false),
-        HavePin(entered: '2', storedPin: '1111', isInputWrong: false),
+        HavePin(entered: '1', isInputWrong: false),
+        HavePin(entered: '', isInputWrong: false),
+        HavePin(entered: '2', isInputWrong: false),
+      ],
+    );
+
+    blocTest(
+      'wrong pin ignore input when max reached',
+      build: () async {
+        when(repo.get()).thenAnswer((_) => '1111');
+        return PinBloc(pinRepository: repo);
+      },
+      act: (bloc) {
+        bloc.add(PinInput(1));
+        bloc.add(PinInput(1));
+        bloc.add(PinInput(1));
+        bloc.add(PinInput(2));
+        return bloc.add(PinInput(0));
+      },
+      expect: [
+        HavePin(entered: '1', isInputWrong: false),
+        HavePin(entered: '11', isInputWrong: false),
+        HavePin(entered: '111', isInputWrong: false),
+        HavePin(entered: '1112', isInputWrong: true),
+      ],
+    );
+
+    blocTest(
+      'pin repeated max reached',
+      build: () async {
+        when(repo.get()).thenAnswer((_) => '');
+        return PinBloc(pinRepository: repo);
+      },
+      act: (bloc) {
+        // new pin
+        bloc.add(PinInput(1));
+        bloc.add(PinInput(1));
+        bloc.add(PinInput(1));
+        bloc.add(PinInput(1));
+        // repeat
+        bloc.add(PinInput(2));
+        bloc.add(PinInput(2));
+        bloc.add(PinInput(2));
+        bloc.add(PinInput(2));
+        return bloc.add(PinInput(0));
+      },
+      expect: [
+        NewPin(entered: '1'),
+        NewPin(entered: '11'),
+        NewPin(entered: '111'),
+        NewPin(entered: '1111'),
+        RepeatPin(entered: '', firstPin: '1111', notEqualToFirst: false),
+        RepeatPin(entered: '2', firstPin: '1111', notEqualToFirst: false),
+        RepeatPin(entered: '22', firstPin: '1111', notEqualToFirst: false),
+        RepeatPin(entered: '222', firstPin: '1111', notEqualToFirst: false),
+        RepeatPin(entered: '2222', firstPin: '1111', notEqualToFirst: true),
       ],
     );
   });

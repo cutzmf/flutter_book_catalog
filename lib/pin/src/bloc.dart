@@ -79,36 +79,30 @@ class RepeatPin implements PinState {
 }
 
 class HavePin implements PinState {
-  final String storedPin;
   final String entered;
   final bool isInputWrong;
-
-  const HavePin({
-    @required this.storedPin,
-    @required this.entered,
-    @required this.isInputWrong,
-  });
 
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
       other is HavePin &&
           runtimeType == other.runtimeType &&
-          storedPin == other.storedPin &&
           entered == other.entered &&
           isInputWrong == other.isInputWrong;
 
   @override
-  int get hashCode =>
-      storedPin.hashCode ^ entered.hashCode ^ isInputWrong.hashCode;
+  int get hashCode => entered.hashCode ^ isInputWrong.hashCode;
+
+  const HavePin({
+    @required this.entered,
+    @required this.isInputWrong,
+  });
 
   HavePin copyWith({
-    String storedPin,
     String entered,
     bool isInputWrong,
   }) {
     return new HavePin(
-      storedPin: storedPin ?? this.storedPin,
       entered: entered ?? this.entered,
       isInputWrong: isInputWrong ?? this.isInputWrong,
     );
@@ -122,12 +116,14 @@ const int kMaxPinLength = 4;
 class PinBloc extends Bloc<PinEvent, PinState> {
   final PinRepository pinRepository;
 
+  String get storedPin => pinRepository.get();
+
   @override
   PinState get initialState {
     String pin = pinRepository.get();
     return pin.isEmpty
         ? NewPin(entered: '')
-        : HavePin(entered: '', storedPin: pin, isInputWrong: false);
+        : HavePin(entered: '', isInputWrong: false);
   }
 
   @override
@@ -149,6 +145,7 @@ class PinBloc extends Bloc<PinEvent, PinState> {
       if (s is RepeatPin) {
         final RepeatPin repeatPin =
             s.copyWith(entered: '${s.entered}${event.value}');
+        if (repeatPin.entered.length > kMaxPinLength) return;
         if (repeatPin.entered.length == kMaxPinLength) {
           if (repeatPin.entered == s.firstPin) {
             await pinRepository.set(repeatPin.entered);
@@ -163,16 +160,17 @@ class PinBloc extends Bloc<PinEvent, PinState> {
       }
 
       if (s is HavePin) {
-        final HavePin newState =
-            s.copyWith(entered: '${s.entered}${event.value}');
-        if (newState.entered.length == kMaxPinLength) {
-          if (newState.entered == newState.storedPin) {
-            yield newState;
+        final String enteredPin = '${s.entered}${event.value}';
+        if (enteredPin.length > kMaxPinLength) return;
+        if (enteredPin.length == kMaxPinLength) {
+          if (enteredPin == storedPin) {
+            yield HavePin(entered: enteredPin, isInputWrong: false);
             yield LoggedIn();
-          } else
-            yield newState.copyWith(isInputWrong: true);
+          } else {
+            yield HavePin(entered: enteredPin, isInputWrong: true);
+          }
         } else {
-          yield newState;
+          yield HavePin(entered: enteredPin, isInputWrong: false);
         }
       }
     } else if (event is PinBackspace) {

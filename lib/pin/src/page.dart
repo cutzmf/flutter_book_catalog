@@ -18,21 +18,25 @@ class PinPage extends StatelessWidget {
           create: (context) => PinBloc(pinRepository: context.repository()),
           child: BlocConsumer<PinBloc, PinState>(
             listener: (context, state) {
+              final ScaffoldState scaffold = Scaffold.of(context);
+              scaffold.removeCurrentSnackBar();
+
               if (state is RepeatPin && state.notEqualToFirst)
-                Scaffold.of(context).showSnackBar(
+                scaffold.showSnackBar(
                   SnackBar(
                     content: Text(S.pinsNotEqual),
-                    backgroundColor: Colors.amber,
+                    backgroundColor: Colors.grey,
                   ),
                 );
 
-              if (state is HavePin && state.isInputWrong)
-                Scaffold.of(context).showSnackBar(
+              if (state is HavePin && state.isInputWrong) {
+                scaffold.showSnackBar(
                   SnackBar(
                     content: Text(S.wrongPin),
-                    backgroundColor: Colors.amber,
+                    backgroundColor: Colors.grey,
                   ),
                 );
+              }
 
               if (state is LoggedIn)
                 Navigator.pushAndRemoveUntil(
