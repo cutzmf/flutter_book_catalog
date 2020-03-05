@@ -189,7 +189,7 @@ class _BuyButton extends StatelessWidget {
       child: ClipRRect(
         borderRadius: BorderRadius.only(topLeft: Radius.circular(20)),
         child: Container(
-          height: _kBottomButtonHeight,
+          height: _kBottomButtonHeight + context.safeBottom,
           width: context.screenWidth *
               _kBottomButtonWidth /
               (_kBottomFreeWidth + _kBottomButtonWidth),
@@ -202,35 +202,38 @@ class _BuyButton extends StatelessWidget {
                       ? () => context.bloc<BookBloc>().add(Buy())
                       : null,
                   splashColor: Colors.grey,
-                  child: Row(
-                    crossAxisAlignment: CrossAxisAlignment.stretch,
-                    mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                    children: <Widget>[
-                      Center(
-                        child: Text(
-                          state is! SucceedBuy
-                              ? S.buy.toUpperCase()
-                              : S.alreadyBought.toUpperCase(),
-                          style: TextStyle(
-                            fontSize: 12,
-                            color: Colors.white,
-                            fontWeight: FontWeight.w600,
+                  child: Padding(
+                    padding:  EdgeInsets.only(bottom: context.safeBottom),
+                    child: Row(
+                      crossAxisAlignment: CrossAxisAlignment.stretch,
+                      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                      children: <Widget>[
+                        Center(
+                          child: Text(
+                            state is! SucceedBuy
+                                ? S.buy.toUpperCase()
+                                : S.alreadyBought.toUpperCase(),
+                            style: TextStyle(
+                              fontSize: 12,
+                              color: Colors.white,
+                              fontWeight: FontWeight.w600,
+                            ),
                           ),
                         ),
-                      ),
-                      Center(
-                        child: state is Buying
-                            ? CircularProgressIndicator(
-                                backgroundColor: Colors.grey.shade200,
-                                valueColor:
-                                    AlwaysStoppedAnimation<Color>(Colors.grey),
-                              )
-                            : Icon(
-                                BookifyIcons.fav,
-                                color: Colors.white,
-                              ),
-                      ),
-                    ],
+                        Center(
+                          child: state is Buying
+                              ? CircularProgressIndicator(
+                                  backgroundColor: Colors.grey.shade200,
+                                  valueColor: AlwaysStoppedAnimation<Color>(
+                                      Colors.grey),
+                                )
+                              : Icon(
+                                  BookifyIcons.fav,
+                                  color: Colors.white,
+                                ),
+                        ),
+                      ],
+                    ),
                   ),
                 );
               },

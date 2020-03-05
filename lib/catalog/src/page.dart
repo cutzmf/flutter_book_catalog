@@ -4,6 +4,7 @@ import 'package:bookcatalog/book/book.dart';
 import 'package:bookcatalog/bookify_icons_icons.dart';
 import 'package:bookcatalog/catalog/src/bloc.dart';
 import 'package:bookcatalog/strings.dart';
+import 'package:bookcatalog/utils/context_extension.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
@@ -93,10 +94,13 @@ class _SearchBar extends StatelessWidget {
       child: BackdropFilter(
         filter: ImageFilter.blur(sigmaX: 10.0, sigmaY: 10.0),
         child: Container(
-          height: 80,
+          height: 80 + context.safeBottom,
           color: Colors.grey.shade400.withOpacity(.6),
           child: Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 40, vertical: 10),
+            padding:
+                const EdgeInsets.symmetric(horizontal: 40, vertical: 10).add(
+              EdgeInsets.only(bottom: context.safeBottom),
+            ),
             child: ChangeNotifierProvider(
               create: (_) => TextEditingController(),
               child: _SearchInput(),
