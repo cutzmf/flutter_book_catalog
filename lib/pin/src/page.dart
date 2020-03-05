@@ -12,47 +12,45 @@ import 'bloc.dart';
 class PinPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
-    return SafeArea(
-      child: Scaffold(
-        body: BlocProvider(
-          create: (context) => PinBloc(pinRepository: context.repository()),
-          child: BlocConsumer<PinBloc, PinState>(
-            listener: (context, state) {
-              final ScaffoldState scaffold = Scaffold.of(context);
-              scaffold.removeCurrentSnackBar();
+    return Scaffold(
+      body: BlocProvider(
+        create: (context) => PinBloc(pinRepository: context.repository()),
+        child: BlocConsumer<PinBloc, PinState>(
+          listener: (context, state) {
+            final ScaffoldState scaffold = Scaffold.of(context);
+            scaffold.removeCurrentSnackBar();
 
-              if (state is RepeatPin && state.notEqualToFirst)
-                scaffold.showSnackBar(
-                  SnackBar(
-                    content: Text(S.pinsNotEqual),
-                    backgroundColor: Colors.grey,
-                  ),
-                );
+            if (state is RepeatPin && state.notEqualToFirst)
+              scaffold.showSnackBar(
+                SnackBar(
+                  content: Text(S.pinsNotEqual),
+                  backgroundColor: Colors.grey,
+                ),
+              );
 
-              if (state is HavePin && state.isInputWrong) {
-                scaffold.showSnackBar(
-                  SnackBar(
-                    content: Text(S.wrongPin),
-                    backgroundColor: Colors.grey,
-                  ),
-                );
-              }
+            if (state is HavePin && state.isInputWrong) {
+              scaffold.showSnackBar(
+                SnackBar(
+                  content: Text(S.wrongPin),
+                  backgroundColor: Colors.grey,
+                ),
+              );
+            }
 
-              if (state is LoggedIn)
-                Navigator.pushAndRemoveUntil(
-                  context,
-                  catalog.route(),
-                  (_) => false,
-                );
-            },
-            buildWhen: (_, s) => s is! LoggedIn,
-            builder: (context, state) {
-              if (state is HavePin) return _EnterPin();
-              if (state is NewPin || state is RepeatPin)
-                return _EnterNewAndRepeat();
-              return SizedBox.shrink();
-            },
-          ),
+            if (state is LoggedIn)
+              Navigator.pushAndRemoveUntil(
+                context,
+                catalog.route(),
+                (_) => false,
+              );
+          },
+          buildWhen: (_, s) => s is! LoggedIn,
+          builder: (context, state) {
+            if (state is HavePin) return _EnterPin();
+            if (state is NewPin || state is RepeatPin)
+              return _EnterNewAndRepeat();
+            return SizedBox.shrink();
+          },
         ),
       ),
     );
