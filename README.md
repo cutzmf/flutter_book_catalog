@@ -1,16 +1,47 @@
-# bookcatalog
+# Yet Another Books App
 
-Yet Another Books App
+Идеи дизайна
 
-## Getting Started
+https://www.figma.com/proto/L7uxAozmsGLSuTuXKjrkIPyW/Iban-Design-Challenge?node-id=4%3A419&scaling=scale-down
 
-This project is a starting point for a Flutter application.
+https://www.figma.com/file/L7uxAozmsGLSuTuXKjrkIPyW/Iban-Design-Challenge?node-id=0%3A1
 
-A few resources to get you started if this is your first Flutter project:
+## Сопроводительная информация
 
-- [Lab: Write your first Flutter app](https://flutter.dev/docs/get-started/codelab)
-- [Cookbook: Useful Flutter samples](https://flutter.dev/docs/cookbook)
+* Все решения могу обосновать.
+* Времени не на всё хватило - работаешь, дети, жена, кот и всё как всегда _"ночь, улица ,фонарь , аптека..."_
+* Как MVP нормально, с сетью(бекендом) можно и _early adopter'ам_ отдавать
 
-For help getting started with Flutter, view our
-[online documentation](https://flutter.dev/docs), which offers tutorials,
-samples, guidance on mobile development, and a full API reference.
+## Функционал
+
+Приложение содержит 3 функциональных экрана и диалог успешной покупки
+1. Ввод пинкода 
+* ввод первичного пинкода
+* повтор пинкода до совпадения с первичным, персист пина, переход к каталогу или ошибка snackbar
+* при наличии пина - спрос пинкода и переход к каталогу или ошибка snackbar
+
+2. Каталог 
+* обновление через pull-to-refresh
+* список книг
+* тамбнейл книги 
+* цена
+* название
+* автор
+* ~краткое описание книги~ не вписывается в дизайн (есть в деталях книги)
+* ~кнопка подробнее~ не вписывается в дизайн - замена на tap по всей плитке
+* поиск по загруженным книгам (только по названию) с 1го символа
+* очищение поля поиска с показом всех книг из кеша
+
+3. Детали книги. Сделано экраном, а не backdrop'ом как в дизайне - имхо он не подходит (дизайн в ТЗ жёстко не требовался)
+* обложка книги
+* название
+* автор
+* стоимость
+* описание книги
+* кнопка купить
+* при успешной покупке диалог с кнопкой «спасибо», закрывающий диалог
+
+Есть тесты для логики - писал походу разработки и полученным багам, чтобы поправить поведение.
+
+Всё не могу дорасти до true TDD и начинать прямо с тестов.
+
