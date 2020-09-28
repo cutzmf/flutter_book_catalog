@@ -1,6 +1,6 @@
 import 'package:bookcatalog/book/book.dart';
 import 'package:bookcatalog/catalog/src/bloc.dart';
-import 'package:flutter/material.dart';
+import 'package:flutter/material.dart' hide Page;
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 import 'src/page.dart';
