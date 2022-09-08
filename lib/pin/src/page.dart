@@ -1,5 +1,6 @@
 import 'package:bookcatalog/bookify_icons_icons.dart';
 import 'package:bookcatalog/catalog/catalog.dart' as catalog;
+import 'package:bookcatalog/pin/src/repository.dart';
 import 'package:bookcatalog/strings.dart';
 import 'package:bookcatalog/utils/context_extension.dart';
 import 'package:flutter/material.dart';
@@ -14,14 +15,14 @@ class PinPage extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       body: BlocProvider(
-        create: (context) => PinBloc(pinRepository: context.repository()),
+        create: (context) => PinBloc(pinRepository: context.read<PinRepository>()),
         child: BlocConsumer<PinBloc, PinState>(
           listener: (context, state) {
-            final ScaffoldState scaffold = Scaffold.of(context);
-            scaffold.removeCurrentSnackBar();
+            final scaffoldManager = ScaffoldMessenger.of(context);
+            scaffoldManager.removeCurrentSnackBar();
 
             if (state is RepeatPin && state.notEqualToFirst)
-              scaffold.showSnackBar(
+              scaffoldManager.showSnackBar(
                 SnackBar(
                   content: Text(S.pinsNotEqual),
                   backgroundColor: Colors.grey,
@@ -29,7 +30,7 @@ class PinPage extends StatelessWidget {
               );
 
             if (state is HavePin && state.isInputWrong) {
-              scaffold.showSnackBar(
+              scaffoldManager.showSnackBar(
                 SnackBar(
                   content: Text(S.wrongPin),
                   backgroundColor: Colors.grey,
@@ -47,8 +48,7 @@ class PinPage extends StatelessWidget {
           buildWhen: (_, s) => s is! LoggedIn,
           builder: (context, state) {
             if (state is HavePin) return _EnterPin();
-            if (state is NewPin || state is RepeatPin)
-              return _EnterNewAndRepeat();
+            if (state is NewPin || state is RepeatPin) return _EnterNewAndRepeat();
             return SizedBox.shrink();
           },
         ),
@@ -74,17 +74,13 @@ class _EnterNewAndRepeat extends StatelessWidget {
       create: (_) => PageController(),
       child: BlocConsumer<PinBloc, PinState>(
         listener: (context, state) {
-          final PageController controller = context.repository();
-          if (state is NewPin)
-            controller.animateToPage(0,
-                duration: _pageDuration, curve: _pageCurve);
-          if (state is RepeatPin)
-            controller.animateToPage(1,
-                duration: _pageDuration, curve: _pageCurve);
+          final controller = context.read<PageController>();
+          if (state is NewPin) controller.animateToPage(0, duration: _pageDuration, curve: _pageCurve);
+          if (state is RepeatPin) controller.animateToPage(1, duration: _pageDuration, curve: _pageCurve);
         },
         builder: (context, state) {
           return PageView(
-            controller: context.repository(),
+            controller: context.read<PageController>(),
             physics: NeverScrollableScrollPhysics(),
             children: <Widget>[
               _FirstPin(),
@@ -101,13 +97,15 @@ class _FirstPin extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return BlocBuilder<PinBloc, PinState>(
-      condition: (_, s) => s is NewPin,
+      buildWhen: (_, s) => s is NewPin,
       builder: (context, state) {
-        final NewPin s = state;
-        return _AttemptPin(
-          text: S.enterNewPin,
-          filledDots: s.entered.length,
-        );
+        if (state is NewPin) {
+          return _AttemptPin(
+            text: S.enterNewPin,
+            filledDots: state.entered.length,
+          );
+        }
+        return const SizedBox.shrink();
       },
     );
   }
@@ -117,13 +115,15 @@ class _SecondPin extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return BlocBuilder<PinBloc, PinState>(
-      condition: (_, s) => s is RepeatPin,
+      buildWhen: (_, s) => s is RepeatPin,
       builder: (context, state) {
-        final RepeatPin s = state;
-        return _AttemptPin(
-          text: S.repeatPin,
-          filledDots: s.entered.length,
-        );
+        if (state is RepeatPin) {
+          return _AttemptPin(
+            text: S.repeatPin,
+            filledDots: state.entered.length,
+          );
+        }
+        return const SizedBox.shrink();
       },
     );
   }
@@ -133,13 +133,15 @@ class _PinInput extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return BlocBuilder<PinBloc, PinState>(
-      condition: (_, s) => s is HavePin,
+      buildWhen: (_, s) => s is HavePin,
       builder: (context, state) {
-        final HavePin s = state;
-        return _AttemptPin(
-          text: S.enterPin,
-          filledDots: s.entered.length,
-        );
+        if (state is HavePin) {
+          return _AttemptPin(
+            text: S.enterPin,
+            filledDots: state.entered.length,
+          );
+        }
+        return const SizedBox.shrink();
       },
     );
   }
@@ -166,16 +168,16 @@ class _AttemptPin extends StatelessWidget {
         ),
         SizedBox(height: 24),
         PinKeyboard(
-          onDigit: (digit) => context.bloc<PinBloc>().add(PinInput(digit)),
-          onBackspace: () => context.bloc<PinBloc>().add(PinBackspace()),
+          onDigit: (digit) => context.watch<PinBloc>().add(PinInput(digit)),
+          onBackspace: () => context.watch<PinBloc>().add(PinBackspace()),
         ),
       ],
     );
   }
 
   const _AttemptPin({
-    @required this.text,
-    @required this.filledDots,
+    required this.text,
+    required this.filledDots,
   });
 }
 
@@ -184,8 +186,8 @@ class PinKeyboard extends StatelessWidget {
   final VoidCallback onBackspace;
 
   PinKeyboard({
-    @required this.onDigit,
-    @required this.onBackspace,
+    required this.onDigit,
+    required this.onBackspace,
   });
 
   Widget _numKey(int num) => _Key(
@@ -241,7 +243,10 @@ class _Key extends StatelessWidget {
   final Widget child;
   final VoidCallback onTap;
 
-  const _Key({this.child, this.onTap});
+  const _Key({
+    required this.child,
+    required this.onTap,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -292,8 +297,8 @@ class PinCodeDots extends StatelessWidget {
   }
 
   PinCodeDots({
-    @required this.filledCount,
-    @required this.dotsCount,
+    required this.filledCount,
+    required this.dotsCount,
   });
 }
 

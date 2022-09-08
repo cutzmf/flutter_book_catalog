@@ -1,7 +1,5 @@
 import 'package:bloc/bloc.dart';
 import 'package:bookcatalog/pin/pin.dart';
-import 'package:flutter/cupertino.dart';
-import 'package:meta/meta.dart';
 
 abstract class PinEvent {}
 
@@ -19,21 +17,19 @@ class NewPin implements PinState {
   final String entered;
 
   const NewPin({
-    @required this.entered,
+    required this.entered,
   });
 
   @override
-  bool operator ==(Object other) =>
-      identical(this, other) ||
-      other is NewPin &&
-          runtimeType == other.runtimeType &&
-          entered == other.entered;
+  bool operator ==(Object other) {
+    return identical(this, other) || other is NewPin && runtimeType == other.runtimeType && entered == other.entered;
+  }
 
   @override
   int get hashCode => entered.hashCode;
 
   NewPin copyWith({
-    String entered,
+    String? entered,
   }) {
     return new NewPin(
       entered: entered ?? this.entered,
@@ -47,17 +43,17 @@ class RepeatPin implements PinState {
   final bool notEqualToFirst;
 
   const RepeatPin({
-    @required this.firstPin,
-    @required this.entered,
-    @required this.notEqualToFirst,
+    required this.firstPin,
+    required this.entered,
+    required this.notEqualToFirst,
   });
 
   RepeatPin copyWith({
-    String firstPin,
-    String entered,
-    bool notEqualToFirst,
+    String? firstPin,
+    String? entered,
+    bool? notEqualToFirst,
   }) {
-    return new RepeatPin(
+    return RepeatPin(
       firstPin: firstPin ?? this.firstPin,
       entered: entered ?? this.entered,
       notEqualToFirst: notEqualToFirst ?? this.notEqualToFirst,
@@ -74,8 +70,7 @@ class RepeatPin implements PinState {
           notEqualToFirst == other.notEqualToFirst;
 
   @override
-  int get hashCode =>
-      firstPin.hashCode ^ entered.hashCode ^ notEqualToFirst.hashCode;
+  int get hashCode => firstPin.hashCode ^ entered.hashCode ^ notEqualToFirst.hashCode;
 }
 
 class HavePin implements PinState {
@@ -94,15 +89,15 @@ class HavePin implements PinState {
   int get hashCode => entered.hashCode ^ isInputWrong.hashCode;
 
   const HavePin({
-    @required this.entered,
-    @required this.isInputWrong,
+    required this.entered,
+    required this.isInputWrong,
   });
 
   HavePin copyWith({
-    String entered,
-    bool isInputWrong,
+    String? entered,
+    bool? isInputWrong,
   }) {
-    return new HavePin(
+    return HavePin(
       entered: entered ?? this.entered,
       isInputWrong: isInputWrong ?? this.isInputWrong,
     );
@@ -119,14 +114,6 @@ class PinBloc extends Bloc<PinEvent, PinState> {
   String get storedPin => pinRepository.get();
 
   @override
-  PinState get initialState {
-    String pin = pinRepository.get();
-    return pin.isEmpty
-        ? NewPin(entered: '')
-        : HavePin(entered: '', isInputWrong: false);
-  }
-
-  @override
   Stream<PinState> mapEventToState(PinEvent event) async* {
     final s = state;
 
@@ -135,16 +122,14 @@ class PinBloc extends Bloc<PinEvent, PinState> {
         final NewPin newPin = s.copyWith(entered: '${s.entered}${event.value}');
         if (newPin.entered.length == kMaxPinLength) {
           yield newPin;
-          yield RepeatPin(
-              firstPin: newPin.entered, entered: '', notEqualToFirst: false);
+          yield RepeatPin(firstPin: newPin.entered, entered: '', notEqualToFirst: false);
         } else {
           yield newPin;
         }
       }
 
       if (s is RepeatPin) {
-        final RepeatPin repeatPin =
-            s.copyWith(entered: '${s.entered}${event.value}');
+        final RepeatPin repeatPin = s.copyWith(entered: '${s.entered}${event.value}');
         if (repeatPin.entered.length > kMaxPinLength) return;
         if (repeatPin.entered.length == kMaxPinLength) {
           if (repeatPin.entered == s.firstPin) {
@@ -175,9 +160,7 @@ class PinBloc extends Bloc<PinEvent, PinState> {
       }
     } else if (event is PinBackspace) {
       if (s is NewPin) yield s.copyWith(entered: _removeLast(s.entered));
-      if (s is RepeatPin)
-        yield s.copyWith(
-            entered: _removeLast(s.entered), notEqualToFirst: false);
+      if (s is RepeatPin) yield s.copyWith(entered: _removeLast(s.entered), notEqualToFirst: false);
       if (s is HavePin)
         yield s.copyWith(
           entered: _removeLast(s.entered),
@@ -186,10 +169,9 @@ class PinBloc extends Bloc<PinEvent, PinState> {
     }
   }
 
-  String _removeLast(String string) =>
-      string.isEmpty ? string : string.substring(0, string.length - 1);
+  String _removeLast(String string) => string.isEmpty ? string : string.substring(0, string.length - 1);
 
   PinBloc({
-    @required this.pinRepository,
-  });
+    required this.pinRepository,
+  }) : super(pinRepository.get().isEmpty ? NewPin(entered: '') : HavePin(entered: '', isInputWrong: false));
 }

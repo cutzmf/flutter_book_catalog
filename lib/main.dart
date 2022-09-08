@@ -13,20 +13,18 @@ void main() async {
   if (const bool.fromEnvironment('dart.vm.product')) {
     /// release mode
   } else {
-    BlocSupervisor.delegate = PrinterBlocDelegate();
+    Bloc.observer = PrinterBlocDelegate();
   }
 
   await SystemChrome.setPreferredOrientations([DeviceOrientation.portraitUp]);
 
-  SharedPreferences sharedPreferencesInstance =
-      await SharedPreferences.getInstance();
+  SharedPreferences sharedPreferencesInstance = await SharedPreferences.getInstance();
 
   runApp(
     MultiRepositoryProvider(
       providers: [
         RepositoryProvider<PinRepository>(
-          create: (_) =>
-              PinRepository(sharedPreferences: sharedPreferencesInstance),
+          create: (_) => PinRepository(sharedPreferences: sharedPreferencesInstance),
         ),
       ],
       child: MyApp(),

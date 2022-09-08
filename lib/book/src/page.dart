@@ -1,5 +1,3 @@
-import 'dart:ui';
-
 import 'package:bookcatalog/book/src/bloc.dart';
 import 'package:bookcatalog/book/src/thanks.dart';
 import 'package:bookcatalog/bookify_icons_icons.dart';
@@ -7,7 +5,6 @@ import 'package:bookcatalog/catalog/src/page.dart';
 import 'package:bookcatalog/strings.dart';
 import 'package:bookcatalog/utils/context_extension.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/widgets.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 class Page extends StatelessWidget {
@@ -17,7 +14,7 @@ class Page extends StatelessWidget {
       body: BlocListener<BookBloc, BookState>(
         listener: (context, state) {
           if (state is Error)
-            Scaffold.of(context).showSnackBar(
+            ScaffoldMessenger.of(context).showSnackBar(
               SnackBar(
                 content: Text(S.networkError),
               ),
@@ -38,19 +35,17 @@ class Page extends StatelessWidget {
                   color: Colors.grey,
                   backgroundColor: Colors.grey.shade200,
                   onRefresh: () {
+                    final bloc = context.watch<BookBloc>();
                     // ignore: close_sinks
-                    final BookBloc bloc = context.bloc();
                     bloc.add(Refresh());
-                    return bloc
-                        .skip(1)
-                        .firstWhere((state) => state is! Loading);
+                    return context.watch<BookBloc>().stream.skip(1).firstWhere((state) => state is! Loading);
                   },
                   child: ListView(
                     children: [
                       BlocBuilder<BookBloc, BookState>(
-                        condition: (_, state) => state is Loaded,
+                        buildWhen: (_, state) => state is Loaded,
                         builder: (context, state) {
-                          final Loaded s = state;
+                          final s = state as Loaded;
                           return Column(
                             crossAxisAlignment: CrossAxisAlignment.center,
                             children: <Widget>[
@@ -83,8 +78,7 @@ class Page extends StatelessWidget {
                               ),
                               SizedBox(height: 28),
                               Padding(
-                                padding:
-                                    const EdgeInsets.symmetric(horizontal: 30),
+                                padding: const EdgeInsets.symmetric(horizontal: 30),
                                 child: Column(
                                   children: <Widget>[
                                     Divider(thickness: 1, height: 0),
@@ -97,8 +91,7 @@ class Page extends StatelessWidget {
                                         Expanded(
                                           flex: 3,
                                           child: Column(
-                                            crossAxisAlignment:
-                                                CrossAxisAlignment.start,
+                                            crossAxisAlignment: CrossAxisAlignment.start,
                                             children: <Widget>[
                                               Text(
                                                 'Цена',
@@ -127,9 +120,7 @@ class Page extends StatelessWidget {
                                     ),
                                     SizedBox(height: 20),
                                     Text(
-                                      s.book.shortDescription +
-                                          '\n\n' +
-                                          s.book.shortDescription,
+                                      s.book.shortDescription + '\n\n' + s.book.shortDescription,
                                       style: TextStyle(
                                         fontWeight: FontWeight.normal,
                                         fontSize: 15,
@@ -190,29 +181,23 @@ class _BuyButton extends StatelessWidget {
         borderRadius: BorderRadius.only(topLeft: Radius.circular(20)),
         child: Container(
           height: _kBottomButtonHeight + context.safeBottom,
-          width: context.screenWidth *
-              _kBottomButtonWidth /
-              (_kBottomFreeWidth + _kBottomButtonWidth),
+          width: context.screenWidth * _kBottomButtonWidth / (_kBottomFreeWidth + _kBottomButtonWidth),
           child: Material(
             color: Colors.black,
             child: BlocBuilder<BookBloc, BookState>(
               builder: (context, state) {
                 return InkWell(
-                  onTap: state is Loaded || state is Error
-                      ? () => context.bloc<BookBloc>().add(Buy())
-                      : null,
+                  onTap: state is Loaded || state is Error ? () => context.watch<BookBloc>().add(Buy()) : null,
                   splashColor: Colors.grey,
                   child: Padding(
-                    padding:  EdgeInsets.only(bottom: context.safeBottom),
+                    padding: EdgeInsets.only(bottom: context.safeBottom),
                     child: Row(
                       crossAxisAlignment: CrossAxisAlignment.stretch,
                       mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                       children: <Widget>[
                         Center(
                           child: Text(
-                            state is! SucceedBuy
-                                ? S.buy.toUpperCase()
-                                : S.alreadyBought.toUpperCase(),
+                            state is! SucceedBuy ? S.buy.toUpperCase() : S.alreadyBought.toUpperCase(),
                             style: TextStyle(
                               fontSize: 12,
                               color: Colors.white,
@@ -224,8 +209,7 @@ class _BuyButton extends StatelessWidget {
                           child: state is Buying
                               ? CircularProgressIndicator(
                                   backgroundColor: Colors.grey.shade200,
-                                  valueColor: AlwaysStoppedAnimation<Color>(
-                                      Colors.grey),
+                                  valueColor: AlwaysStoppedAnimation<Color>(Colors.grey),
                                 )
                               : Icon(
                                   BookifyIcons.fav,

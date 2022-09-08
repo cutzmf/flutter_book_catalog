@@ -1,8 +1,6 @@
 import 'package:bloc/bloc.dart';
 import 'package:bookcatalog/book/book.dart';
-import 'package:flutter/cupertino.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:meta/meta.dart';
 
 abstract class BookEvent {}
 
@@ -25,18 +23,17 @@ class Loaded implements BookState {
 
   @override
   bool operator ==(Object other) =>
-      identical(this, other) ||
-      other is Loaded && runtimeType == other.runtimeType && book == other.book;
+      identical(this, other) || other is Loaded && runtimeType == other.runtimeType && book == other.book;
 
   @override
   int get hashCode => book.hashCode;
 
   const Loaded({
-    @required this.book,
+    required this.book,
   });
 
   Loaded copyWith({
-    Book book,
+    Book? book,
   }) {
     return new Loaded(
       book: book ?? this.book,
@@ -47,9 +44,6 @@ class Loaded implements BookState {
 class BookBloc extends Bloc<BookEvent, BookState> {
   final Book book;
   final BooksApi booksApi;
-
-  @override
-  BookState get initialState => Loaded(book: book);
 
   @override
   Stream<BookState> mapEventToState(BookEvent event) async* {
@@ -78,7 +72,7 @@ class BookBloc extends Bloc<BookEvent, BookState> {
   }
 
   BookBloc({
-    @required this.book,
-    @required this.booksApi,
-  });
+    required this.book,
+    required this.booksApi,
+  }) : super(Loaded(book: book));
 }

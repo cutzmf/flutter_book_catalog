@@ -1,6 +1,5 @@
 import 'package:bookcatalog/strings.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/widgets.dart';
 
 class ThanksDialog extends StatelessWidget {
   @override
@@ -8,7 +7,7 @@ class ThanksDialog extends StatelessWidget {
     return AlertDialog(
       title: Text(S.succeedBuy, textAlign: TextAlign.center),
       actions: <Widget>[
-        FlatButton(
+        FloatingActionButton(
           child: Padding(
             padding: const EdgeInsets.all(15),
             child: Text(
@@ -22,7 +21,7 @@ class ThanksDialog extends StatelessWidget {
           ),
           shape: StadiumBorder(),
           onPressed: () => Navigator.pop(context),
-          color: Colors.black,
+          backgroundColor: Colors.black,
         )
       ],
     );

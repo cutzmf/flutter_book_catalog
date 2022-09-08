@@ -14,7 +14,7 @@ MaterialPageRoute detailsRoute(Book book, BuildContext oldContext) {
       return BlocProvider(
         create: (_) => BookBloc(
           book: book,
-          booksApi: oldContext.repository(),
+          booksApi: oldContext.read(),
         ),
         child: Page(),
       );

@@ -31,15 +31,15 @@ class Loaded implements CatalogState {
   final String search;
 
   const Loaded({
-    @required this.books,
-    @required this.search,
+    required this.books,
+    required this.search,
   });
 
   Loaded copyWith({
-    List<Book> books,
-    String search,
+    List<Book>? books,
+    String? search,
   }) {
-    return new Loaded(
+    return Loaded(
       books: books ?? this.books,
       search: search ?? this.search,
     );
@@ -61,12 +61,6 @@ class CatalogBloc extends Bloc<CatalogEvent, CatalogState> {
   /// for sake of simplicity of memory cache
   List<Book> _cache = [];
   final BooksApi booksApi;
-
-  @override
-  CatalogState get initialState => Loaded(
-        books: [],
-        search: '',
-      );
 
   @override
   Stream<CatalogState> mapEventToState(CatalogEvent event) async* {
@@ -92,9 +86,7 @@ class CatalogBloc extends Bloc<CatalogEvent, CatalogState> {
       yield event.value.isNotEmpty
           ? s.copyWith(
               search: event.value,
-              books: _cache
-                  .where((it) => it.title.contains(event.value))
-                  .toList(),
+              books: _cache.where((it) => it.title.contains(event.value)).toList(),
             )
           : s.copyWith(books: _cache);
     }
@@ -134,8 +126,8 @@ class CatalogBloc extends Bloc<CatalogEvent, CatalogState> {
   }
 
   CatalogBloc({
-    @required this.booksApi,
-  }) {
+    required this.booksApi,
+  }) : super(Loaded(books: [], search: '')) {
     add(LoadMore());
   }
 }

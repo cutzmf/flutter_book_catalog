@@ -1,5 +1,3 @@
-import 'package:meta/meta.dart';
-
 class Book {
   final int id;
   final String title;
@@ -22,19 +20,14 @@ class Book {
 
   @override
   int get hashCode =>
-      id.hashCode ^
-      title.hashCode ^
-      author.hashCode ^
-      shortDescription.hashCode ^
-      price.hashCode ^
-      imageUrl.hashCode;
+      id.hashCode ^ title.hashCode ^ author.hashCode ^ shortDescription.hashCode ^ price.hashCode ^ imageUrl.hashCode;
 
   const Book({
-    @required this.id,
-    @required this.title,
-    @required this.author,
-    @required this.shortDescription,
-    @required this.price,
-    @required this.imageUrl,
+    required this.id,
+    required this.title,
+    required this.author,
+    required this.shortDescription,
+    required this.price,
+    required this.imageUrl,
   });
 }

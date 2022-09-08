@@ -11,7 +11,7 @@ MaterialPageRoute route() {
       return RepositoryProvider(
         create: (_) => BooksApi(),
         child: BlocProvider(
-          create: (context) => CatalogBloc(booksApi: context.repository()),
+          create: (context) => CatalogBloc(booksApi: context.read<BooksApi>()),
           child: Page(),
         ),
       );
